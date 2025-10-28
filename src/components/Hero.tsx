@@ -45,16 +45,16 @@ export function Hero() {
 
           {/* Search bar */}
           <div className="max-w-xl mx-auto mb-8">
-            <div className="relative">
+            <div className="relative bg-white dark:bg-gray-950 rounded-full shadow-sm">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search by topic, author, or keyword..."
-                className="h-14 pl-12 pr-32"
+                className="h-14 pl-12 pr-32 bg-white dark:bg-gray-950 border-0 rounded-full focus-visible:ring-offset-0"
               />
-              <Button className="absolute right-1.5 top-1/2 -translate-y-1/2 h-11">
+              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-sm font-medium text-foreground cursor-pointer hover:text-primary">
                 Search
-              </Button>
+              </span>
             </div>
           </div>
 
