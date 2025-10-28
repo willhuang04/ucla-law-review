@@ -7,6 +7,8 @@ import { PublicationsPage } from "./pages/PublicationsPage";
 import { SubmitPage } from "./pages/SubmitPage";
 import { AboutUsPage } from "./pages/AboutUsPage";
 
+import { AuthProvider } from './lib/auth';
+
 export default function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [currentPage, setCurrentPage] = useState("home");
@@ -42,17 +44,19 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden">
-      <Header 
-        darkMode={darkMode} 
-        setDarkMode={setDarkMode}
-        currentPage={currentPage}
-        onNavigate={handleNavigation}
-      />
-      <main className="flex-1">
-        {renderPage()}
-      </main>
-      <Footer onNavigate={handleNavigation} />
-    </div>
+    <AuthProvider>
+      <div className="min-h-screen flex flex-col overflow-x-hidden">
+        <Header 
+          darkMode={darkMode} 
+          setDarkMode={setDarkMode}
+          currentPage={currentPage}
+          onNavigate={handleNavigation}
+        />
+        <main className="flex-1">
+          {renderPage()}
+        </main>
+        <Footer onNavigate={handleNavigation} />
+      </div>
+    </AuthProvider>
   );
 }

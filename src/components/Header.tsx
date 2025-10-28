@@ -55,9 +55,9 @@ export function Header({ darkMode, setDarkMode, currentPage, onNavigate }: Heade
             </button>
           </nav>
 
-          {/* Search & CTA */}
-          <div className="hidden md:flex items-center gap-3">
-            <div className="relative">
+          {/* Search, Auth & Theme */}
+          <div className="flex items-center gap-4">
+            <div className="relative hidden md:block">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -65,23 +65,6 @@ export function Header({ darkMode, setDarkMode, currentPage, onNavigate }: Heade
                 className="w-[200px] pl-8"
               />
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDarkMode(!darkMode)}
-              aria-label="Toggle theme"
-            >
-              {darkMode ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </Button>
-            <Button size="sm" onClick={() => onNavigate('submit')}>Submit Article</Button>
-          </div>
-
-          {/* Auth & Theme Toggle */}
-          <div className="flex items-center gap-4">
             <AuthCheck />
             <Button
               variant="ghost"

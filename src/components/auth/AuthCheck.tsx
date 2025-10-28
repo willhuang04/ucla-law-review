@@ -1,22 +1,15 @@
-import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-react"
+import { SignInButton, UserButton, useUser } from "@clerk/clerk-react"
 
 export function AuthCheck() {
   const { isSignedIn, user } = useUser()
 
   if (!isSignedIn) {
     return (
-      <div className="flex gap-4">
-        <SignInButton mode="modal">
-          <button className="text-sm font-medium hover:text-primary">
-            Sign In
-          </button>
-        </SignInButton>
-        <SignUpButton mode="modal">
-          <button className="text-sm font-medium hover:text-primary">
-            Sign Up
-          </button>
-        </SignUpButton>
-      </div>
+      <SignInButton mode="modal">
+        <button className="text-sm font-medium hover:text-primary">
+          Sign In
+        </button>
+      </SignInButton>
     )
   }
 
