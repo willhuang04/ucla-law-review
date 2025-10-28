@@ -23,12 +23,14 @@ export function Hero() {
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32 z-20">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
+          {/*
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border bg-background/50 backdrop-blur mb-6">
             <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
             <span className="text-xs">
               ISSN 9999-999X • Volume 12, 2025
             </span>
           </div>
+          */}
 
           {/* Main heading */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl mb-6 tracking-tight">
