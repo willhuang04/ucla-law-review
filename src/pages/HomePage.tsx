@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { ArrowRight } from "lucide-react";
 
 interface HomePageProps {
-  onNavigate: (page: string) => void;
+  onNavigate: (path: string) => void;
 }
 
 export function HomePage({ onNavigate }: HomePageProps) {
