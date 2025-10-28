@@ -1,6 +1,7 @@
 import { Search, Menu, Moon, Sun } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { AuthCheck } from "./auth/AuthCheck";
 
 interface HeaderProps {
   darkMode: boolean;
@@ -79,8 +80,9 @@ export function Header({ darkMode, setDarkMode, currentPage, onNavigate }: Heade
             <Button size="sm" onClick={() => onNavigate('submit')}>Submit Article</Button>
           </div>
 
-          {/* Mobile Menu & Theme Toggle */}
-          <div className="flex items-center gap-2 md:hidden">
+          {/* Auth & Theme Toggle */}
+          <div className="flex items-center gap-4">
+            <AuthCheck />
             <Button
               variant="ghost"
               size="icon"
@@ -93,7 +95,7 @@ export function Header({ darkMode, setDarkMode, currentPage, onNavigate }: Heade
                 <Moon className="h-5 w-5" />
               )}
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
             </Button>
           </div>
