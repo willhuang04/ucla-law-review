@@ -13,7 +13,11 @@ export function Footer({ onNavigate }: FooterProps) {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="h-8 w-8 rounded bg-primary" />
+              <img 
+                src="https://logos-world.net/wp-content/uploads/2021/11/University-of-California-Los-Angeles-UCLA-Emblem.png" 
+                alt="UCLA Law Journal" 
+                className="h-8 w-8 rounded object-contain"
+              />
               <div className="flex flex-col">
                 <span className="tracking-tight">UCLA</span>
                 <span className="text-xs text-muted-foreground tracking-tight">Law Journal</span>
