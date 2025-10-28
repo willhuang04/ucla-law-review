@@ -50,7 +50,7 @@ export function Hero() {
               <Input
                 type="search"
                 placeholder="Search by topic, author, or keyword..."
-                className="h-14 pl-12 pr-32 bg-white dark:bg-gray-950 border-0 rounded-full focus-visible:ring-offset-0"
+                className="h-14 pl-12 pr-32 bg-white dark:bg-gray-950 border-0 rounded-[2rem] focus-visible:ring-offset-0"
               />
               <span className="absolute right-6 top-1/2 -translate-y-1/2 text-sm font-medium text-foreground cursor-pointer hover:text-primary">
                 Search
