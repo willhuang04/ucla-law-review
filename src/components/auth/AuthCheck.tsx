@@ -16,7 +16,7 @@ export function AuthCheck() {
   return (
     <div className="flex items-center gap-4">
       <span className="text-sm text-muted-foreground">
-        {user.primaryEmailAddress?.emailAddress}
+        {`${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User'}
       </span>
       <UserButton afterSignOutUrl="/" />
     </div>
