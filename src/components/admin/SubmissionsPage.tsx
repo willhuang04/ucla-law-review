@@ -11,7 +11,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { supabase, type Submission } from "../../lib/supabase";
 import { Skeleton } from "../ui/skeleton";
-import { CheckCircle, XCircle, Clock, Eye, FileText } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Eye, FileText, Star } from "lucide-react";
 
 export function SubmissionsPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -97,6 +97,29 @@ export function SubmissionsPage() {
       
     } catch (err: any) {
       setError('Failed to reject submission: ' + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleToggleFeatured(submissionId: string, currentFeatured: boolean) {
+    setActionLoading(submissionId);
+    try {
+      // Toggle the featured status for this article (allow multiple featured articles)
+      const { error: updateError } = await supabase
+        .from('submissions')
+        .update({ featured: !currentFeatured })
+        .eq('id', submissionId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      // Refresh submissions
+      await fetchSubmissions();
+      
+    } catch (err: any) {
+      setError('Failed to update featured status: ' + err.message);
     } finally {
       setActionLoading(null);
     }
@@ -256,7 +279,23 @@ export function SubmissionsPage() {
                         </Button>
                       </>
                     )}
-                    {submission.status !== 'pending' && (
+                    {submission.status === 'approved' && (
+                      <Button 
+                        size="sm" 
+                        variant={submission.featured ? "default" : "outline"}
+                        onClick={() => handleToggleFeatured(submission.id, submission.featured || false)}
+                        disabled={!!actionLoading}
+                        className={submission.featured ? "bg-yellow-500 hover:bg-yellow-600 text-white" : "text-yellow-600 border-yellow-200 hover:bg-yellow-50"}
+                      >
+                        {actionLoading === submission.id ? (
+                          <Clock className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Star className={`h-3 w-3 ${submission.featured ? 'fill-current' : ''}`} />
+                        )}
+                        {submission.featured ? 'Featured' : 'Feature'}
+                      </Button>
+                    )}
+                    {submission.status !== 'pending' && submission.status !== 'approved' && (
                       <Button size="sm" variant="outline" disabled>
                         <Eye className="h-3 w-3" />
                         View

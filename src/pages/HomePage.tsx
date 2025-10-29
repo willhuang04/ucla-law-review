@@ -1,21 +1,63 @@
+import { useState, useEffect } from "react";
 import { ArticleCard } from "../components/ArticleCard";
 import { Hero } from "../components/Hero";
 import { Button } from "../components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { ArrowRight } from "lucide-react";
+import { supabase, type Submission } from "../lib/supabase";
 
 interface HomePageProps {
   onNavigate: (path: string) => void;
 }
 
 export function HomePage({ onNavigate }: HomePageProps) {
-  const featuredArticle = {
+  const [featuredArticles, setFeaturedArticles] = useState<Submission[]>([]);
+  const [currentFeaturedIndex, setCurrentFeaturedIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFeaturedArticles();
+  }, []);
+
+  useEffect(() => {
+    // Auto-slide carousel every 5 seconds if there are multiple featured articles
+    if (featuredArticles.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentFeaturedIndex((prev) => (prev + 1) % featuredArticles.length);
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [featuredArticles.length]);
+
+  async function fetchFeaturedArticles() {
+    try {
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('*')
+        .eq('status', 'approved')
+        .eq('featured', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching featured articles:', error);
+      } else if (data && data.length > 0) {
+        setFeaturedArticles(data);
+      }
+    } catch (err) {
+      console.error('Error fetching featured articles:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Fallback featured article for when none is set in database
+  const fallbackFeaturedArticle = {
     title: "The Digital Frontier: Examining Privacy Rights in the Age of Artificial Intelligence",
     abstract: "This comprehensive analysis explores the intersection of constitutional privacy protections and emerging AI technologies. Through comparative analysis of recent case law and regulatory frameworks across jurisdictions, we propose a modernized approach to privacy rights that balances innovation with fundamental civil liberties.",
-    author: "Sarah Chen",
-    category: "Constitutional Law",
-    readTime: "12 min read",
-    imageUrl: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGRvY3VtZW50c3xlbnwxfHx8fDE3NjE1MzQzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    author_name: "Sarah Chen",
+    area: "Constitutional Law" as const,
+    thumbnail_url: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGRvY3VtZW50c3xlbnwxfHx8fDE3NjE1MzQzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
   };
 
   const recentArticles = [
@@ -70,13 +112,70 @@ export function HomePage({ onNavigate }: HomePageProps) {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="mb-2">Featured Article</h2>
+              <h2 className="mb-2">Featured Articles</h2>
               <p className="text-muted-foreground">
-                Editor's pick from our latest issue
+                Editor's picks from our latest issues
               </p>
             </div>
           </div>
-          <ArticleCard {...featuredArticle} featured />
+          {loading ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading featured articles...</p>
+            </div>
+          ) : featuredArticles.length > 0 ? (
+            <div className="relative overflow-hidden">
+              {/* Carousel Container with Fixed Height */}
+              <div 
+                className="flex transition-transform duration-500 ease-in-out h-[600px]"
+                style={{ transform: `translateX(-${currentFeaturedIndex * 100}%)` }}
+              >
+                {featuredArticles.map((article, index) => (
+                  <div key={article.id} className="w-full flex-shrink-0 h-full">
+                    <div className="h-full">
+                      <ArticleCard 
+                        title={article.title}
+                        abstract={article.abstract}
+                        author={article.author_name}
+                        category={article.area}
+                        readTime="Featured Article"
+                        imageUrl={article.thumbnail_url || fallbackFeaturedArticle.thumbnail_url}
+                        submissionId={article.id}
+                        featured 
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Carousel Indicators */}
+              {featuredArticles.length > 1 && (
+                <div className="flex justify-center mt-4 space-x-2">
+                  {featuredArticles.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentFeaturedIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        index === currentFeaturedIndex 
+                          ? 'bg-primary' 
+                          : 'bg-muted-foreground/30'
+                      }`}
+                      aria-label={`Go to featured article ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <ArticleCard 
+              title={fallbackFeaturedArticle.title}
+              abstract={fallbackFeaturedArticle.abstract}
+              author={fallbackFeaturedArticle.author_name}
+              category={fallbackFeaturedArticle.area}
+              readTime="Featured Article"
+              imageUrl={fallbackFeaturedArticle.thumbnail_url}
+              featured 
+            />
+          )}
         </div>
       </section>
 

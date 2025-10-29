@@ -28,12 +28,12 @@ export function ArticleCard({
 }: ArticleCardProps) {
   return (
     <Card className={`group overflow-hidden transition-all hover:shadow-lg ${
-      featured ? "md:col-span-2 md:row-span-2" : ""
+      featured ? "md:col-span-2 md:row-span-2 h-full" : ""
     }`}>
       <div className={`flex ${featured ? "flex-col md:flex-row" : "flex-col"} h-full`}>
         {/* Image */}
         <div className={`relative overflow-hidden bg-muted ${
-          featured ? "md:w-1/2" : "h-48"
+          featured ? "md:w-1/2 h-48 md:h-full" : "h-48"
         }`}>
           <ImageWithFallback
             src={imageUrl}

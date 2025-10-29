@@ -28,6 +28,7 @@ export interface Submission {
   pdf_url?: string
   // Status and review
   status: 'pending' | 'approved' | 'rejected'
+  featured?: boolean
   submitted_at: string
   reviewed_at?: string
   reviewed_by?: string
