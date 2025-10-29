@@ -15,8 +15,6 @@ export function ArticlePage() {
   const [loading, setLoading] = useState(true);
   const [extractingText, setExtractingText] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [extractionError, setExtractionError] = useState<string | null>(null);
-  const [currentAbortController, setCurrentAbortController] = useState<AbortController | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -51,8 +49,8 @@ export function ArticlePage() {
         setError(error.message || 'Article not found');
       } else if (data) {
         setArticle(data);
-        if (data.pdf_url) {
-          extractDocxText(data.pdf_url);
+        if (data.docx_url) {
+          extractDocxText(data.docx_url);
         }
       }
     } catch (err: any) {
@@ -64,62 +62,18 @@ export function ArticlePage() {
   }
 
   async function extractDocxText(docxUrl: string) {
-    // Cancel any existing extraction
-    if (currentAbortController) {
-      currentAbortController.abort();
-    }
-    
-    const abortController = new AbortController();
-    setCurrentAbortController(abortController);
-    
     try {
       setExtractingText(true);
-      setExtractionError(null);
-      console.log('Starting text extraction for:', article?.title);
       
       // Extract text using Mammoth.js
-      const text = await extractTextFromDOCX(docxUrl, abortController.signal);
-      
-      // Check if we were aborted
-      if (abortController.signal.aborted) {
-        return;
-      }
-      
-      if (!text || text.trim().length === 0) {
-        setExtractionError("No text could be extracted from this document.");
-        setDocxText("");
-      } else {
-        setDocxText(text);
-        setExtractionError(null);
-        console.log('Text extraction successful');
-      }
+      const text = await extractTextFromDOCX(docxUrl);
+      setDocxText(text || "No text could be extracted from this DOCX file.");
       
     } catch (err: any) {
-      // Don't show error if we were aborted
-      if (abortController.signal.aborted) {
-        return;
-      }
-      
       console.error('Failed to extract DOCX text:', err);
-      
-      let errorMessage = "Failed to extract text from document.";
-      if (err.message?.includes('timed out')) {
-        errorMessage = "Text extraction timed out. The file might be too large or corrupted.";
-      } else if (err.message?.includes('HTTP')) {
-        errorMessage = "Could not download the document file.";
-      } else if (err.message?.includes('fetch')) {
-        errorMessage = "Network error while downloading document.";
-      } else if (err.name === 'AbortError') {
-        errorMessage = "Text extraction was cancelled.";
-      }
-      
-      setExtractionError(errorMessage);
-      setDocxText("");
+      setDocxText("Unable to extract text from DOCX file. Please view the original document using the link above.");
     } finally {
-      if (currentAbortController === abortController) {
-        setCurrentAbortController(null);
-        setExtractingText(false);
-      }
+      setExtractingText(false);
     }
   }
 
@@ -251,21 +205,7 @@ export function ArticlePage() {
           {extractingText ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-foreground mb-4"></div>
-              <p className="text-muted-foreground mb-2">Extracting text from document...</p>
-              <p className="text-sm text-muted-foreground mb-4">This may take up to 30 seconds</p>
-              {currentAbortController && (
-                <button
-                  onClick={() => {
-                    currentAbortController.abort();
-                    setCurrentAbortController(null);
-                    setExtractingText(false);
-                    setExtractionError("Text extraction was cancelled.");
-                  }}
-                  className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                >
-                  Cancel
-                </button>
-              )}
+              <p className="text-muted-foreground">Loading article content...</p>
             </div>
           ) : (
             <div className="text-foreground leading-relaxed">
@@ -273,35 +213,10 @@ export function ArticlePage() {
                 <div className="whitespace-pre-wrap text-lg leading-8">
                   {docxText}
                 </div>
-              ) : extractionError ? (
-                <div className="text-center py-12">
-                  <div className="text-red-600 mb-4">
-                    <p className="mb-2">⚠️ {extractionError}</p>
-                  </div>
-                  {article?.pdf_url && (
-                    <button
-                      onClick={() => extractDocxText(article.pdf_url!)}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors mb-4"
-                    >
-                      Try Again
-                    </button>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    Or view the original document using the link above.
-                  </p>
-                </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
-                  <p className="mb-4">Click below to load the article text.</p>
-                  {article?.pdf_url && (
-                    <button
-                      onClick={() => extractDocxText(article.pdf_url!)}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors mb-4"
-                    >
-                      Load Article Text
-                    </button>
-                  )}
-                  <p className="text-sm">Or view the original document using the link above.</p>
+                  <p className="mb-4">Article text extraction is in progress.</p>
+                  <p className="text-sm">Please check back shortly or view the original document.</p>
                 </div>
               )}
             </div>
