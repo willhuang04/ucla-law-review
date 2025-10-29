@@ -10,7 +10,8 @@ import { Badge } from "../ui/badge";
 import { useOrganization } from "@clerk/clerk-react";
 import { useState, useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
-import { AdminDebug } from "./AdminDebug";
+// import { AdminDebug } from "./AdminDebug";
+// import { SupabaseTest } from "./SupabaseTest";
 
 type Member = {
   id: string;
@@ -121,7 +122,6 @@ export function UsersPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Users</h1>
       </div>
-      <AdminDebug />
       {error && (
         <div className="mb-4 text-red-600">{error}</div>
       )}
