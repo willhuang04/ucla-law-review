@@ -212,9 +212,9 @@ export function SubmissionsPage() {
               <TableRow key={submission.id}>
                 <TableCell className="font-medium max-w-xs">
                   <div className="truncate" title={submission.title}>
-                    {submission.pdf_url ? (
+                    {submission.docx_url ? (
                       <a 
-                        href={submission.pdf_url} 
+                        href={submission.docx_url} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 hover:underline"
@@ -228,7 +228,7 @@ export function SubmissionsPage() {
                   <div className="text-xs text-muted-foreground mt-1 truncate" title={submission.abstract}>
                     {submission.abstract.substring(0, 100)}...
                   </div>
-                  {submission.pdf_url && (
+                  {submission.docx_url && (
                     <div className="text-xs text-blue-600 mt-1">
                       📄 DOCX Available
                     </div>

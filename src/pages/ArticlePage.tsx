@@ -177,10 +177,10 @@ export function ArticlePage() {
                   day: 'numeric'
                 })}
               </div>
-              {article.pdf_url && (
+              {article.docx_url && (
                 <Button asChild variant="outline" size="sm" className="mt-2">
                   <a 
-                    href={article.pdf_url} 
+                    href={article.docx_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >

@@ -26,7 +26,7 @@ export interface Submission {
   abstract: string
   // Files
   thumbnail_url?: string
-  pdf_url?: string
+  docx_url?: string
   // Status and review
   status: 'pending' | 'approved' | 'rejected'
   featured?: boolean

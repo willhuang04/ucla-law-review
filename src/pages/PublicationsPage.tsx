@@ -26,7 +26,7 @@ export function PublicationsPage() {
         .select('*')
         .eq('status', 'approved')
         .not('thumbnail_url', 'is', null)
-        .not('pdf_url', 'is', null)
+  .not('docx_url', 'is', null)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -50,7 +50,7 @@ export function PublicationsPage() {
     category: submission.area,
     readTime: "8 min read", // We'll calculate this later or make it dynamic
     imageUrl: submission.thumbnail_url || "",
-    pdfUrl: submission.pdf_url || "",
+  docxUrl: submission.docx_url || "",
     submissionId: submission.id,
     slug: submission.slug
   }));

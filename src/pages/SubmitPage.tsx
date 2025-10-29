@@ -195,7 +195,7 @@ export function SubmitPage() {
       const { error: updateError } = await supabase
         .from('submissions')
         .update({ 
-          pdf_url: docxPublicUrl,
+          docx_url: docxPublicUrl,
           thumbnail_url: thumbnailPublicUrl
         })
         .eq('id', submissionId);
