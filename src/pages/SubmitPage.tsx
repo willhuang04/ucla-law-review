@@ -29,9 +29,9 @@ export function SubmitPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
-      if (file.type !== 'application/pdf') {
-        setError('Please select a PDF file.');
+      // Validate file type (DOCX only)
+      if (file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        setError('Please select a DOCX file (Microsoft Word document).');
         return;
       }
       // Validate file size (max 10MB)
@@ -66,7 +66,7 @@ export function SubmitPage() {
   const removeFile = () => {
     setSelectedFile(null);
     // Reset file input
-    const fileInput = document.getElementById('pdf') as HTMLInputElement;
+    const fileInput = document.getElementById('docx') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
   };
 
@@ -91,7 +91,7 @@ export function SubmitPage() {
 
     // Validate file selections
     if (!selectedFile) {
-      setError('Please select a PDF file to upload.');
+      setError('Please select a DOCX file to upload.');
       setIsSubmitting(false);
       return;
     }
@@ -132,30 +132,28 @@ export function SubmitPage() {
       console.log('Submission inserted successfully:', data);
       const submissionId = data[0].id;
 
-      // Upload both PDF and thumbnail
+      // Upload both DOCX and thumbnail
       console.log('Starting file uploads...');
       setUploadProgress(10);
       
-      // Upload PDF
-      const pdfExt = selectedFile.name.split('.').pop();
-      const pdfFileName = `${submissionId}.${pdfExt}`;
-      
-      console.log('Uploading PDF:', pdfFileName);
-      
-      const { data: pdfUploadData, error: pdfUploadError } = await supabaseService.storage
+      // Upload DOCX
+      const docxExt = selectedFile.name.split('.').pop();
+      const docxFileName = `${submissionId}.${docxExt}`;
+
+      console.log('Uploading DOCX:', docxFileName);      const { data: docxUploadData, error: docxUploadError } = await supabaseService.storage
         .from('submissions')
-        .upload(pdfFileName, selectedFile, {
+        .upload(docxFileName, selectedFile, {
           cacheControl: '3600',
           upsert: true,
-          contentType: 'application/pdf'
+          contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         });
 
-      if (pdfUploadError) {
-        console.error('PDF upload error:', pdfUploadError);
-        throw new Error(`PDF upload failed: ${pdfUploadError.message}`);
+      if (docxUploadError) {
+        console.error('DOCX upload error:', docxUploadError);
+        throw new Error(`DOCX upload failed: ${docxUploadError.message}`);
       }
 
-      console.log('PDF upload successful:', pdfUploadData);
+      console.log('DOCX upload successful:', docxUploadData);
       setUploadProgress(40);
 
       // Upload thumbnail
@@ -181,15 +179,15 @@ export function SubmitPage() {
       setUploadProgress(70);
 
       // Get public URLs
-      const { data: { publicUrl: pdfPublicUrl } } = supabaseService.storage
+      const { data: { publicUrl: docxPublicUrl } } = supabaseService.storage
         .from('submissions')
-        .getPublicUrl(pdfFileName);
+        .getPublicUrl(docxFileName);
 
       const { data: { publicUrl: thumbnailPublicUrl } } = supabaseService.storage
         .from('submissions')
         .getPublicUrl(thumbnailFileName);
 
-      console.log('Generated PDF URL:', pdfPublicUrl);
+      console.log('Generated DOCX URL:', docxPublicUrl);
       console.log('Generated thumbnail URL:', thumbnailPublicUrl);
       setUploadProgress(90);
 
@@ -197,7 +195,7 @@ export function SubmitPage() {
       const { error: updateError } = await supabase
         .from('submissions')
         .update({ 
-          pdf_url: pdfPublicUrl,
+          pdf_url: docxPublicUrl,
           thumbnail_url: thumbnailPublicUrl
         })
         .eq('id', submissionId);
@@ -208,7 +206,7 @@ export function SubmitPage() {
       }
 
       setUploadProgress(100);
-      console.log('Submission created with PDF:', data);
+      console.log('Submission created with DOCX:', data);
       setSubmitted(true);
       
     } catch (err: any) {
@@ -240,7 +238,7 @@ export function SubmitPage() {
                 <li>Abstract of 150-250 words required</li>
                 <li>Must select primary legal area (Administrative, Civil, Criminal, Environmental, or National Security)</li>
                 <li>Author must be currently enrolled as an undergraduate student</li>
-                <li>Submit as a PDF document</li>
+                <li>Submit as a DOCX document</li>
               </ul>
               <p>
                 All submissions undergo a rigorous peer-review process. You will receive a response within 6-8 weeks.
@@ -360,25 +358,25 @@ export function SubmitPage() {
                   />
                 </div>
 
-                {/* Upload PDF */}
+                {/* Upload DOCX */}
                 <div className="space-y-2">
-                  <Label htmlFor="pdf" className="uppercase tracking-wider text-xs">
-                    Upload PDF *
+                  <Label htmlFor="docx" className="uppercase tracking-wider text-xs">
+                    Upload DOCX *
                   </Label>
                   {!selectedFile ? (
                     <div className="relative">
                       <input
-                        id="pdf"
-                        name="pdf"
+                        id="docx"
+                        name="docx"
                         type="file"
-                        accept=".pdf"
+                        accept=".docx"
                         onChange={handleFileSelect}
                         disabled={isSubmitting}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
                       <div className="p-6 border border-dashed border-muted-foreground/25 rounded text-center hover:border-muted-foreground/50 transition-colors cursor-pointer">
                         <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                        <p className="text-sm font-medium">Click to upload PDF</p>
+                        <p className="text-sm font-medium">Click to upload DOCX</p>
                         <p className="text-xs text-muted-foreground mt-1">
                           Maximum file size: 10MB
                         </p>

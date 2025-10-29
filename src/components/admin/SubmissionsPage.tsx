@@ -207,7 +207,7 @@ export function SubmissionsPage() {
                   </div>
                   {submission.pdf_url && (
                     <div className="text-xs text-blue-600 mt-1">
-                      📄 PDF Available
+                      📄 DOCX Available
                     </div>
                   )}
                 </TableCell>

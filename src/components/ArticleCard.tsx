@@ -1,4 +1,5 @@
 import { Clock, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -11,6 +12,7 @@ interface ArticleCardProps {
   readTime: string;
   imageUrl: string;
   pdfUrl?: string;
+  submissionId?: string;
   featured?: boolean;
 }
 
@@ -21,7 +23,7 @@ export function ArticleCard({
   category,
   readTime,
   imageUrl,
-  pdfUrl,
+  submissionId,
   featured = false,
 }: ArticleCardProps) {
   return (
@@ -48,15 +50,13 @@ export function ArticleCard({
           <h3 className={`mb-3 line-clamp-2 transition-colors group-hover:text-primary ${
             featured ? "text-xl lg:text-2xl" : ""
           }`}>
-            {pdfUrl ? (
-              <a 
-                href={pdfUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
+            {submissionId ? (
+              <Link 
+                to={`/article/${submissionId}`}
                 className="hover:underline cursor-pointer"
               >
                 {title}
-              </a>
+              </Link>
             ) : (
               title
             )}

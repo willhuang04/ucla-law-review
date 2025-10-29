@@ -5,6 +5,7 @@ import { Footer } from "./components/Footer";
 import { HomePage } from "./pages/HomePage";
 import { AboutPage } from "./pages/AboutPage";
 import { PublicationsPage } from "./pages/PublicationsPage";
+import { ArticlePage } from "./pages/ArticlePage";
 import { SubmitPage } from "./pages/SubmitPage";
 import { AboutUsPage } from "./pages/AboutUsPage";
 import { AdminPage } from "./pages/AdminPage";
@@ -42,6 +43,7 @@ function AppContent() {
           <Route path="/" element={<HomePage onNavigate={handleNavigation} />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/publications" element={<PublicationsPage />} />
+          <Route path="/article/:id" element={<ArticlePage />} />
           <Route path="/submit" element={<SubmitPage />} />
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/admin/*" element={<AdminRoute><AdminPage /></AdminRoute>} />
