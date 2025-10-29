@@ -291,36 +291,6 @@ export function HomePage({ onNavigate }: HomePageProps) {
           </Button>
         </div>
       </section>
-
-      {/* Call to Action */}
-      <section className="py-20 border-b bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="mb-4">Submit Your Research</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              We welcome submissions from undergraduate students across all legal disciplines. 
-              Our peer-review process ensures rigorous academic standards while fostering the next generation of legal scholars.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button 
-                size="lg" 
-                className="group"
-                onClick={() => onNavigate('submit')}
-              >
-                View Submission Guidelines
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                onClick={() => onNavigate('contact')}
-              >
-                Contact Editorial Board
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
     </>
   );
 }
