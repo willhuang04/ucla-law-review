@@ -7,8 +7,8 @@ export function AboutUsPage() {
     {
       name: "Jacob Rusting",
       title: "Director",
-      major: "Political Science + Something",
-      year: "Class of 202X",
+      major: "Political Science and History",
+      year: "Class of 2027",
       bio: "",
       email: "@ucla.edu",
       initials: "JR",
@@ -17,8 +17,8 @@ export function AboutUsPage() {
     {
       name: "Monica McCallin",
       title: "Director",
-      major: "Political Science + Something",
-      year: "Class of 202X",
+      major: "Political Science and Environmental Systems & Society Minor",
+      year: "Class of 2026",
       bio: "",
       email: "@ucla.edu",
       initials: "MM",
@@ -27,8 +27,8 @@ export function AboutUsPage() {
     {
       name: "William Huang",
       title: "Director",
-      major: "Political Science + Computer Science",
-      year: "Class of 202X",
+      major: "Political Science and Computer Science",
+      year: "Class of 2026",
       bio: "",
       email: "@ucla.edu",
       initials: "WH",
@@ -43,7 +43,7 @@ export function AboutUsPage() {
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h1 className="mb-6">About Us</h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            We are actively recruiting tell yall friends to pull up.
+            Our current board members.
           </p>
         </div>
 
@@ -58,12 +58,12 @@ export function AboutUsPage() {
                     <img 
                       src={officer.image} 
                       alt={officer.name}
-                      className="w-full h-full object-cover"
+                      className="w-32 h-32 object-cover rounded-full"
                     />
                   ) : (
-                    <Avatar className="h-32 w-32">
-                      <AvatarImage src={officer.image} />
-                      <AvatarFallback className="text-4xl">{officer.initials}</AvatarFallback>
+                    <Avatar className="h-32 w-32 rounded-full">
+                      <AvatarImage src={officer.image} className="rounded-full" />
+                      <AvatarFallback className="text-4xl rounded-full">{officer.initials}</AvatarFallback>
                     </Avatar>
                   )}
                 </div>

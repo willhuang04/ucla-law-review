@@ -89,6 +89,7 @@ export function AboutPage() {
       </section>
 
       {/* Editorial Board */}
+      {/*}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-center mb-12">Editorial Board</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -103,6 +104,7 @@ export function AboutPage() {
           ))}
         </div>
       </section>
+      */}
     </div>
   );
 }
