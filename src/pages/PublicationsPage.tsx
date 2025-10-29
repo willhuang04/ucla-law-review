@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ArticleCard } from "../components/ArticleCard";
 import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
@@ -7,7 +8,8 @@ import { supabase } from "../lib/supabase";
 import type { Submission } from "../lib/supabase";
 
 export function PublicationsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || "");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +19,14 @@ export function PublicationsPage() {
   useEffect(() => {
     fetchApprovedSubmissions();
   }, []);
+
+  // Update search query when URL params change
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setSearchQuery(urlSearch);
+    }
+  }, [searchParams]);
 
   async function fetchApprovedSubmissions() {
     try {
@@ -58,8 +68,12 @@ export function PublicationsPage() {
   
 
   const filteredArticles = allArticles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         article.author.toLowerCase().includes(searchQuery.toLowerCase());
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = !searchQuery || 
+      article.title.toLowerCase().includes(searchLower) ||
+      article.author.toLowerCase().includes(searchLower) ||
+      article.abstract.toLowerCase().includes(searchLower) ||
+      article.category.toLowerCase().includes(searchLower);
     const matchesCategory = categoryFilter === "all" || article.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
