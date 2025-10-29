@@ -20,7 +20,7 @@ export function Footer({ onNavigate }: FooterProps) {
               />
               <div className="flex flex-col">
                 <span className="tracking-tight">UCLA</span>
-                <span className="text-xs text-muted-foreground tracking-tight">Law Journal</span>
+                <span className="text-xs text-muted-foreground tracking-tight">Undergraduate Law Review</span>
               </div>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
@@ -51,7 +51,7 @@ export function Footer({ onNavigate }: FooterProps) {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    onNavigate("about");
+                    onNavigate("about-us");
                   }}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -63,7 +63,7 @@ export function Footer({ onNavigate }: FooterProps) {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    onNavigate("about");
+                    onNavigate("about-us");
                   }}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
