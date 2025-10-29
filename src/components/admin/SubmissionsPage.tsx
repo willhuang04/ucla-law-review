@@ -189,11 +189,27 @@ export function SubmissionsPage() {
               <TableRow key={submission.id}>
                 <TableCell className="font-medium max-w-xs">
                   <div className="truncate" title={submission.title}>
-                    {submission.title}
+                    {submission.pdf_url ? (
+                      <a 
+                        href={submission.pdf_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {submission.title}
+                      </a>
+                    ) : (
+                      submission.title
+                    )}
                   </div>
                   <div className="text-xs text-muted-foreground mt-1 truncate" title={submission.abstract}>
                     {submission.abstract.substring(0, 100)}...
                   </div>
+                  {submission.pdf_url && (
+                    <div className="text-xs text-blue-600 mt-1">
+                      📄 PDF Available
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>{submission.author_name}</TableCell>
                 <TableCell>{submission.author_email}</TableCell>

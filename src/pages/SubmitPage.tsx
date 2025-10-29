@@ -5,9 +5,16 @@ import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Upload, CheckCircle } from "lucide-react";
+import { Upload, CheckCircle, FileText, X } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { createClient } from '@supabase/supabase-js';
 import { useUser } from "@clerk/clerk-react";
+
+// Create a service role client for file uploads (bypasses RLS)
+const supabaseService = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_SERVICE_KEY
+);
 
 export function SubmitPage() {
   const { user } = useUser();
@@ -15,6 +22,60 @@ export function SubmitPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedArea, setSelectedArea] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        setError('Please select a PDF file.');
+        return;
+      }
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setError('File size must be less than 10MB.');
+        return;
+      }
+      setSelectedFile(file);
+      setError(null);
+    }
+  };
+
+  const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type (images only) - more permissive
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!file.type.startsWith('image/') && !allowedTypes.includes(file.type)) {
+        setError('Please select an image file (PNG, JPG, GIF, WebP).');
+        return;
+      }
+      // Validate file size (max 5MB for images)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB.');
+        return;
+      }
+      setSelectedThumbnail(file);
+      setError(null);
+    }
+  };
+
+  const removeFile = () => {
+    setSelectedFile(null);
+    // Reset file input
+    const fileInput = document.getElementById('pdf') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
+  const removeThumbnail = () => {
+    setSelectedThumbnail(null);
+    // Reset thumbnail input
+    const thumbnailInput = document.getElementById('thumbnail') as HTMLInputElement;
+    if (thumbnailInput) thumbnailInput.value = '';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +85,19 @@ export function SubmitPage() {
     // Validate area selection
     if (!selectedArea) {
       setError('Please select a legal area for your article.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate file selections
+    if (!selectedFile) {
+      setError('Please select a PDF file to upload.');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    if (!selectedThumbnail) {
+      setError('Please select a thumbnail image for your article.');
       setIsSubmitting(false);
       return;
     }
@@ -40,20 +114,101 @@ export function SubmitPage() {
         author_id: user?.id || null,
         area: selectedArea,
         status: 'pending' as const,
-        // Note: thumbnail_url and pdf_url will be added when file upload is implemented
       };
 
-      // Insert into Supabase
+      console.log('Attempting to insert submission:', submission);
+
+      // Insert into Supabase first to get the submission ID
       const { data, error: insertError } = await supabase
         .from('submissions')
         .insert(submission)
         .select();
 
       if (insertError) {
-        throw insertError;
+        console.error('Database insert error:', insertError);
+        throw new Error(`Database error: ${insertError.message}`);
       }
 
-      console.log('Submission created:', data);
+      console.log('Submission inserted successfully:', data);
+      const submissionId = data[0].id;
+
+      // Upload both PDF and thumbnail
+      console.log('Starting file uploads...');
+      setUploadProgress(10);
+      
+      // Upload PDF
+      const pdfExt = selectedFile.name.split('.').pop();
+      const pdfFileName = `${submissionId}.${pdfExt}`;
+      
+      console.log('Uploading PDF:', pdfFileName);
+      
+      const { data: pdfUploadData, error: pdfUploadError } = await supabaseService.storage
+        .from('submissions')
+        .upload(pdfFileName, selectedFile, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: 'application/pdf'
+        });
+
+      if (pdfUploadError) {
+        console.error('PDF upload error:', pdfUploadError);
+        throw new Error(`PDF upload failed: ${pdfUploadError.message}`);
+      }
+
+      console.log('PDF upload successful:', pdfUploadData);
+      setUploadProgress(40);
+
+      // Upload thumbnail
+      const thumbnailExt = selectedThumbnail.name.split('.').pop();
+      const thumbnailFileName = `${submissionId}_thumb.${thumbnailExt}`;
+      
+      console.log('Uploading thumbnail:', thumbnailFileName);
+      
+      const { data: thumbnailUploadData, error: thumbnailUploadError } = await supabaseService.storage
+        .from('submissions')
+        .upload(thumbnailFileName, selectedThumbnail, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: selectedThumbnail.type
+        });
+
+      if (thumbnailUploadError) {
+        console.error('Thumbnail upload error:', thumbnailUploadError);
+        throw new Error(`Thumbnail upload failed: ${thumbnailUploadError.message}`);
+      }
+
+      console.log('Thumbnail upload successful:', thumbnailUploadData);
+      setUploadProgress(70);
+
+      // Get public URLs
+      const { data: { publicUrl: pdfPublicUrl } } = supabaseService.storage
+        .from('submissions')
+        .getPublicUrl(pdfFileName);
+
+      const { data: { publicUrl: thumbnailPublicUrl } } = supabaseService.storage
+        .from('submissions')
+        .getPublicUrl(thumbnailFileName);
+
+      console.log('Generated PDF URL:', pdfPublicUrl);
+      console.log('Generated thumbnail URL:', thumbnailPublicUrl);
+      setUploadProgress(90);
+
+      // Update submission with both URLs
+      const { error: updateError } = await supabase
+        .from('submissions')
+        .update({ 
+          pdf_url: pdfPublicUrl,
+          thumbnail_url: thumbnailPublicUrl
+        })
+        .eq('id', submissionId);
+
+      if (updateError) {
+        console.error('Update error:', updateError);
+        throw new Error(`Update error: ${updateError.message}`);
+      }
+
+      setUploadProgress(100);
+      console.log('Submission created with PDF:', data);
       setSubmitted(true);
       
     } catch (err: any) {
@@ -108,6 +263,9 @@ export function SubmitPage() {
                   setSubmitted(false);
                   setError(null);
                   setSelectedArea("");
+                  setSelectedFile(null);
+                  setSelectedThumbnail(null);
+                  setUploadProgress(0);
                   (document.getElementById('submission-form') as HTMLFormElement)?.reset();
                 }}>
                   Submit Another Article
@@ -202,16 +360,124 @@ export function SubmitPage() {
                   />
                 </div>
 
-                {/* Upload PDF - Placeholder for now */}
+                {/* Upload PDF */}
                 <div className="space-y-2">
                   <Label htmlFor="pdf" className="uppercase tracking-wider text-xs">
-                    Upload PDF (Coming Soon)
+                    Upload PDF *
                   </Label>
-                  <div className="p-4 border border-dashed border-muted-foreground/25 rounded text-center text-muted-foreground">
-                    <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">PDF upload will be available soon</p>
-                    <p className="text-xs">For now, your submission will be saved without the file</p>
-                  </div>
+                  {!selectedFile ? (
+                    <div className="relative">
+                      <input
+                        id="pdf"
+                        name="pdf"
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleFileSelect}
+                        disabled={isSubmitting}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <div className="p-6 border border-dashed border-muted-foreground/25 rounded text-center hover:border-muted-foreground/50 transition-colors cursor-pointer">
+                        <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm font-medium">Click to upload PDF</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Maximum file size: 10MB
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 border rounded bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <FileText className="h-8 w-8 text-red-500" />
+                          <div>
+                            <p className="text-sm font-medium">{selectedFile.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={removeFile}
+                          disabled={isSubmitting}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      {uploadProgress > 0 && uploadProgress < 100 && (
+                        <div className="mt-3">
+                          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                            <span>Uploading...</span>
+                            <span>{uploadProgress}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-1.5">
+                            <div 
+                              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300" 
+                              style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload Thumbnail */}
+                <div className="space-y-2">
+                  <Label htmlFor="thumbnail" className="uppercase tracking-wider text-xs">
+                    Article Thumbnail *
+                  </Label>
+                  {!selectedThumbnail ? (
+                    <div className="relative">
+                      <input
+                        id="thumbnail"
+                        name="thumbnail"
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                        onChange={handleThumbnailSelect}
+                        disabled={isSubmitting}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <div className="p-6 border border-dashed border-muted-foreground/25 rounded text-center hover:border-muted-foreground/50 transition-colors cursor-pointer">
+                        <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm font-medium">Click to upload thumbnail image</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PNG, JPG, or other image formats • Max 5MB
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 border rounded bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="relative h-12 w-12 rounded overflow-hidden bg-muted">
+                            <img 
+                              src={URL.createObjectURL(selectedThumbnail)} 
+                              alt="Thumbnail preview"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{selectedThumbnail.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(selectedThumbnail.size / (1024 * 1024)).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={removeThumbnail}
+                          disabled={isSubmitting}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Submit Button */}
