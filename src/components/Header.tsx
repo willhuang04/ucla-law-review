@@ -100,14 +100,6 @@ export function Header({ darkMode, setDarkMode, currentPage, onNavigate }: Heade
 
           {/* Search, Auth & Theme */}
           <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search articles..."
-                className="w-[200px] pl-8"
-              />
-            </div>
             <AuthCheck />
             <Button
               variant="ghost"
