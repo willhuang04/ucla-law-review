@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Upload, CheckCircle, FileText, X } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { createClient } from '@supabase/supabase-js';
-import { useUser } from "@clerk/clerk-react";
+import { useUser, SignInButton } from "@clerk/clerk-react";
 
 // Create a service role client for file uploads (bypasses RLS)
 const supabaseService = createClient(
@@ -17,7 +17,7 @@ const supabaseService = createClient(
 );
 
 export function SubmitPage() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +25,60 @@ export function SubmitPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+
+  // Show loading state while checking authentication
+  if (!isLoaded) {
+    return (
+      <div className="py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to sign-in if not authenticated
+  if (!user) {
+    return (
+      <div className="py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="mb-8">
+              <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h1 className="text-3xl font-bold mb-4">Submit Your Article</h1>
+              <p className="text-lg text-muted-foreground mb-8">
+                You need to be signed in to submit an article to UCLA Law Review.
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <SignInButton mode="modal">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Sign In to Submit
+                </Button>
+              </SignInButton>
+              
+              <p className="text-sm text-muted-foreground">
+                Don't have an account? Signing in will create one automatically.
+              </p>
+            </div>
+
+            <div className="mt-12 p-6 bg-muted/30 rounded-lg text-left">
+              <h3 className="font-semibold mb-3">Submission Requirements:</h3>
+              <ul className="text-sm text-muted-foreground space-y-2">
+                <li>• Must be a UCLA undergraduate student</li>
+                <li>• Article must be in DOCX format (Microsoft Word)</li>
+                <li>• Include a thumbnail image for your article</li>
+                <li>• All submissions go through peer review</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -82,6 +136,13 @@ export function SubmitPage() {
     setIsSubmitting(true);
     setError(null);
 
+    // Check if user is logged in
+    if (!user) {
+      setError('You must be logged in to submit an article.');
+      setIsSubmitting(false);
+      return;
+    }
+
     // Validate area selection
     if (!selectedArea) {
       setError('Please select a legal area for your article.');
@@ -119,9 +180,14 @@ export function SubmitPage() {
       console.log('Attempting to insert submission:', submission);
 
       // Insert into Supabase first to get the submission ID
+      const submissionWithUser = {
+        ...submission,
+        author_id: user?.id || null // Safely add Clerk user ID for RLS
+      };
+      
       const { data, error: insertError } = await supabase
         .from('submissions')
-        .insert(submission)
+        .insert(submissionWithUser)
         .select();
 
       if (insertError) {
