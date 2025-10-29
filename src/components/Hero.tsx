@@ -9,7 +9,7 @@ export function Hero() {
       <div
         className="absolute inset-0 w-full h-full"
         style={{
-          backgroundImage: `url('https://lh3.googleusercontent.com/gps-cs-s/AG0ilSybwdNqBuhBIA3mlzYff2YhjO79EMFeQ3fkCtwuV4VSDW1RdEmpxWOKAGtnZjU86rVhdb16cdys8CPW7bmYo34G8J6XpEO46kORH6Bh4o16wXJ-LFV4sh8rkUt-RLf6-PAZnwsW6w=s1360-w1360-h1020-rw')`,
+          backgroundImage: `url('https://www.ppic.org/wp-content/uploads/2017/04/UCLACampusWithFountain.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           zIndex: 0
