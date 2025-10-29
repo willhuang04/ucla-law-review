@@ -27,7 +27,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
     if (featuredArticles.length > 1) {
       const interval = setInterval(() => {
         setCurrentFeaturedIndex((prev) => (prev + 1) % featuredArticles.length);
-      }, 5000);
+      }, 2500);
 
       return () => clearInterval(interval);
     }
