@@ -113,7 +113,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                 className="flex transition-transform duration-500 ease-in-out h-[600px]"
                 style={{ transform: `translateX(-${currentFeaturedIndex * 100}%)` }}
               >
-                {featuredArticles.map((article, index) => (
+                {featuredArticles.map((article) => (
                   <div key={article.id} className="w-full flex-shrink-0 h-full">
                     <div className="h-full">
                       <ArticleCard 

@@ -1,16 +1,7 @@
 import { Card } from "../components/ui/card";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { Award, Target, Users, BookOpen } from "lucide-react";
 
 export function AboutPage() {
-  const boardMembers = [
-    { name: "Dr. Jennifer Martinez", role: "Faculty Advisor", initials: "JM" },
-    { name: "Alex Chen", role: "Editor-in-Chief", initials: "AC" },
-    { name: "Samantha Williams", role: "Managing Editor", initials: "SW" },
-    { name: "Michael Brown", role: "Articles Editor", initials: "MB" },
-    { name: "Emily Davis", role: "Research Editor", initials: "ED" },
-    { name: "David Kim", role: "Technology Editor", initials: "DK" },
-  ];
 
   const values = [
     {

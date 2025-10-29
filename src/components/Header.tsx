@@ -1,6 +1,5 @@
-import { Search, Menu, Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { AuthCheck } from "./auth/AuthCheck";
 import { useUser, useOrganization } from "@clerk/clerk-react";
 import { isAdmin } from "./auth/AdminRoute";
