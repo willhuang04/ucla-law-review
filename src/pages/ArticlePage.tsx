@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { ArrowLeft, ExternalLink, User, Calendar } from "lucide-react";
+import { ArrowLeft, ExternalLink, User } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { extractTextFromDOCX } from "../lib/docxUtils";
 import type { Submission } from "../lib/supabase";
@@ -105,127 +104,126 @@ export function ArticlePage() {
   }
 
   return (
-    <div className="py-16">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Back Button */}
+    <div className="min-h-screen bg-background">
+      {/* Back Button - Fixed at top */}
+      <div className="border-b bg-background/95 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Button 
             onClick={() => navigate('/publications')} 
             variant="ghost" 
-            className="mb-8"
+            size="sm"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Publications
           </Button>
+        </div>
+      </div>
 
-          {/* Article Header */}
-          <div className="mb-8">
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <Badge>{article.area}</Badge>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <User className="h-4 w-4" />
-                  <span>{article.author_name}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(article.created_at).toLocaleDateString()}</span>
+      {/* NYT-style Article Layout */}
+      <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Article Category & Metadata */}
+        <div className="mb-6">
+          <Badge variant="outline" className="mb-4 text-xs uppercase tracking-wide">
+            {article.area}
+          </Badge>
+        </div>
+
+        {/* Article Title */}
+        <header className="mb-8">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-foreground">
+            {article.title}
+          </h1>
+        </header>
+
+        {/* Hero Image - Full width of text column */}
+        {article.thumbnail_url && (
+          <figure className="mb-8">
+            <img 
+              src={article.thumbnail_url} 
+              alt={article.title}
+              className="w-full h-auto rounded-sm"
+            />
+            <figcaption className="text-sm text-muted-foreground mt-2 italic">
+              Illustration for "{article.title}"
+            </figcaption>
+          </figure>
+        )}
+
+        {/* Author Info Section */}
+        <div className="border-t border-b border-border py-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                  <User className="h-6 w-6 text-muted-foreground" />
                 </div>
               </div>
+              <div>
+                <div className="font-medium text-foreground">By {article.author_name}</div>
+                <div className="text-sm text-muted-foreground">{article.author_email}</div>
+              </div>
             </div>
-            
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">{article.title}</h1>
-            
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="text-right">
+              <div className="text-sm text-muted-foreground">
+                {new Date(article.created_at).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </div>
               {article.pdf_url && (
-                <Button asChild>
+                <Button asChild variant="outline" size="sm" className="mt-2">
                   <a 
                     href={article.pdf_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    View Original DOCX
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    DOCX
                   </a>
                 </Button>
               )}
             </div>
           </div>
-
-          {/* Article Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Abstract */}
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Abstract</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  {article.abstract}
-                </p>
-              </Card>
-
-              {/* DOCX Text Content */}
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Full Text</h2>
-                {extractingText ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">Extracting text from DOCX...</p>
-                  </div>
-                ) : (
-                  <div className="prose max-w-none">
-                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                      {docxText}
-                    </p>
-                  </div>
-                )}
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Thumbnail */}
-              {article.thumbnail_url && (
-                <Card className="p-4">
-                  <img 
-                    src={article.thumbnail_url} 
-                    alt={article.title}
-                    className="w-full rounded-lg"
-                  />
-                </Card>
-              )}
-
-              {/* Article Info */}
-              <Card className="p-6">
-                <h3 className="font-semibold mb-4">Article Information</h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <span className="font-medium">Author:</span>
-                    <p className="text-muted-foreground">{article.author_name}</p>
-                  </div>
-                  <div>
-                    <span className="font-medium">Email:</span>
-                    <p className="text-muted-foreground">{article.author_email}</p>
-                  </div>
-                  <div>
-                    <span className="font-medium">Area:</span>
-                    <p className="text-muted-foreground">{article.area}</p>
-                  </div>
-                  <div>
-                    <span className="font-medium">Published:</span>
-                    <p className="text-muted-foreground">
-                      {new Date(article.created_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
         </div>
-      </div>
+
+        {/* Abstract - Above full text */}
+        <div className="mb-8">
+          <p className="text-xl md:text-2xl leading-relaxed text-muted-foreground font-light italic">
+            {article.abstract}
+          </p>
+        </div>
+
+        {/* Article Content */}
+        <div className="prose prose-lg max-w-none">
+          {extractingText ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-foreground mb-4"></div>
+              <p className="text-muted-foreground">Loading article content...</p>
+            </div>
+          ) : (
+            <div className="text-foreground leading-relaxed">
+              {docxText ? (
+                <div className="whitespace-pre-wrap text-lg leading-8">
+                  {docxText}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="mb-4">Article text extraction is in progress.</p>
+                  <p className="text-sm">Please check back shortly or view the original document.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-16 pt-8 border-t border-border">
+          <div className="text-center text-sm text-muted-foreground">
+            <p>Published in UCLA Law Review • {article.area}</p>
+          </div>
+        </footer>
+      </article>
     </div>
   );
 }
