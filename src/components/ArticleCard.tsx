@@ -10,6 +10,7 @@ interface ArticleCardProps {
   category: string;
   readTime: string;
   imageUrl: string;
+  pdfUrl?: string;
   featured?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function ArticleCard({
   category,
   readTime,
   imageUrl,
+  pdfUrl,
   featured = false,
 }: ArticleCardProps) {
   return (
@@ -46,7 +48,18 @@ export function ArticleCard({
           <h3 className={`mb-3 line-clamp-2 transition-colors group-hover:text-primary ${
             featured ? "text-xl lg:text-2xl" : ""
           }`}>
-            {title}
+            {pdfUrl ? (
+              <a 
+                href={pdfUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:underline cursor-pointer"
+              >
+                {title}
+              </a>
+            ) : (
+              title
+            )}
           </h3>
           
           <p className={`text-muted-foreground mb-4 flex-grow ${

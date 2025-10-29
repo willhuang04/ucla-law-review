@@ -1,63 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArticleCard } from "../components/ArticleCard";
 import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Search } from "lucide-react";
+import { supabase } from "../lib/supabase";
+import type { Submission } from "../lib/supabase";
 
 export function PublicationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const allArticles = [
-    {
-      title: "The Digital Frontier: Examining Privacy Rights in the Age of Artificial Intelligence",
-      abstract: "This comprehensive analysis explores the intersection of constitutional privacy protections and emerging AI technologies.",
-      author: "Sarah Chen",
-      category: "Civil",
-      readTime: "12 min read",
-      imageUrl: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGRvY3VtZW50c3xlbnwxfHx8fDE3NjE1MzQzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    },
-    {
-      title: "Climate Change Litigation and State Responsibility",
-      abstract: "An examination of emerging trends in climate litigation and the evolving doctrine of state responsibility under international law.",
-      author: "Marcus Johnson",
-      category: "Environmental",
-      readTime: "8 min read",
-      imageUrl: "https://images.unsplash.com/photo-1619806677949-cbae91e82cea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb3VydGhvdXNlfGVufDF8fHx8MTc2MTYwMDg2NXww&ixlib=rb-4.1.0&q=80&w=1080",
-    },
-    {
-      title: "Administrative Procedure and Regulatory Compliance in Financial Markets",
-      abstract: "Exploring the administrative law framework governing financial regulation and the challenges of regulatory compliance.",
-      author: "Emily Rodriguez",
-      category: "Administrative",
-      readTime: "10 min read",
-      imageUrl: "https://images.unsplash.com/photo-1701790644702-292e25180524?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGJvb2tzJTIwbGlicmFyeXxlbnwxfHx8fDE3NjE1NTAxMTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    },
-    {
-      title: "Criminal Justice Reform: Evidence-Based Policy Recommendations",
-      abstract: "A data-driven approach to criminal justice reform, analyzing successful interventions and policy implications.",
-      author: "James Thompson",
-      category: "Criminal",
-      readTime: "15 min read",
-      imageUrl: "https://images.unsplash.com/photo-1701790644702-292e25180524?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXclMjBib29rcyUyMGRlc2t8ZW58MXx8fHwxNzYxNjAwODY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    },
-    {
-      title: "Cybersecurity Law and National Defense Policy",
-      abstract: "Navigating the legal framework for cybersecurity in critical infrastructure and its implications for national security.",
-      author: "Priya Patel",
-      category: "National Security",
-      readTime: "9 min read",
-      imageUrl: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGRvY3VtZW50c3xlbnwxfHx8fDE3NjE1MzQzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    },
-    {
-      title: "Intelligence Surveillance and Fourth Amendment Protections",
-      abstract: "Assessing the balance between national security surveillance programs and constitutional privacy protections.",
-      author: "Alexandra Kim",
-      category: "National Security",
-      readTime: "11 min read",
-      imageUrl: "https://images.unsplash.com/photo-1619806677949-cbae91e82cea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb3VydGhvdXNlfGVufDF8fHx8MTc2MTYwMDg2NXww&ixlib=rb-4.1.0&q=80&w=1080",
-    },
-  ];
+  // Fetch approved submissions from database
+  useEffect(() => {
+    fetchApprovedSubmissions();
+  }, []);
+
+  async function fetchApprovedSubmissions() {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('*')
+        .eq('status', 'approved')
+        .not('thumbnail_url', 'is', null)
+        .not('pdf_url', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setSubmissions(data || []);
+    } catch (err: any) {
+      setError('Failed to load publications. Please try again later.');
+      console.error('Failed to fetch publications:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Convert submissions to article format
+  const allArticles = submissions.map(submission => ({
+    title: submission.title,
+    abstract: submission.abstract,
+    author: submission.author_name,
+    category: submission.area,
+    readTime: "8 min read", // We'll calculate this later or make it dynamic
+    imageUrl: submission.thumbnail_url || "",
+    pdfUrl: submission.pdf_url || "",
+    submissionId: submission.id
+  }));
+
+  
 
   const filteredArticles = allArticles.filter(article => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -104,21 +101,52 @@ export function PublicationsPage() {
           </Select>
         </div>
 
-        {/* Results */}
-        <div className="mb-4 text-sm text-muted-foreground">
-          Showing {filteredArticles.length} {filteredArticles.length === 1 ? 'article' : 'articles'}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredArticles.map((article, index) => (
-            <ArticleCard key={index} {...article} />
-          ))}
-        </div>
-
-        {filteredArticles.length === 0 && (
+        {/* Loading State */}
+        {loading && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No articles found matching your criteria.</p>
+            <p className="text-muted-foreground">Loading publications...</p>
           </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="text-center py-12">
+            <p className="text-red-600">{error}</p>
+            <button 
+              onClick={fetchApprovedSubmissions}
+              className="mt-4 text-blue-600 hover:text-blue-800 underline"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        {/* Results */}
+        {!loading && !error && (
+          <>
+            <div className="mb-4 text-sm text-muted-foreground">
+              Showing {filteredArticles.length} {filteredArticles.length === 1 ? 'article' : 'articles'}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredArticles.map((article, index) => (
+                <ArticleCard key={article.submissionId || index} {...article} />
+              ))}
+            </div>
+
+            {filteredArticles.length === 0 && submissions.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No published articles yet.</p>
+                <p className="text-xs text-muted-foreground mt-2">Articles will appear here once they are approved by administrators.</p>
+              </div>
+            )}
+
+            {filteredArticles.length === 0 && submissions.length > 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No articles found matching your criteria.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
