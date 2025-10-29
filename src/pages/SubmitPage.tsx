@@ -4,22 +4,55 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
-import { Upload } from "lucide-react";
+import { Upload, CheckCircle } from "lucide-react";
+import { supabase } from "../lib/supabase";
+import { useUser } from "@clerk/clerk-react";
 
 export function SubmitPage() {
-  const [fileName, setFileName] = useState<string>("");
+  const { user } = useUser();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFileName(file.name);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted");
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      
+      // Extract form data
+      const submission = {
+        title: formData.get('title') as string,
+        abstract: formData.get('abstract') as string,
+        author_name: formData.get('name') as string,
+        author_email: formData.get('email') as string,
+        author_id: user?.id || null,
+        category: 'General', // Default category for now
+        keywords: [], // Empty for now
+        // Note: PDF upload will be added later
+      };
+
+      // Insert into Supabase
+      const { data, error: insertError } = await supabase
+        .from('submissions')
+        .insert(submission)
+        .select();
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      console.log('Submission created:', data);
+      setSubmitted(true);
+      
+    } catch (err: any) {
+      console.error('Submission error:', err);
+      setError(err.message || 'Failed to submit. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -54,151 +87,114 @@ export function SubmitPage() {
         {/* Submission Form */}
         <div className="max-w-2xl mx-auto">
           <Card className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Your Name */}
-              <div className="space-y-2">
-                <Label htmlFor="name" className="uppercase tracking-wider text-xs">
-                  Your Name
-                </Label>
-                <Input
-                  id="name"
-                  type="text"
-                  required
-                  className="bg-input"
-                />
+            {submitted ? (
+              <div className="text-center space-y-4">
+                <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+                <h2 className="text-2xl font-bold">Submission Received!</h2>
+                <p className="text-muted-foreground">
+                  Thank you for your submission. We'll review it and get back to you within 6-8 weeks.
+                </p>
+                <Button onClick={() => {
+                  setSubmitted(false);
+                  setError(null);
+                  (document.getElementById('submission-form') as HTMLFormElement)?.reset();
+                }}>
+                  Submit Another Article
+                </Button>
               </div>
-
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="uppercase tracking-wider text-xs">
-                  Current Email Address
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  className="bg-input"
-                />
-              </div>
-
-              {/* Phone */}
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="uppercase tracking-wider text-xs">
-                  Phone Number
-                </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  required
-                  className="bg-input"
-                />
-              </div>
-
-              {/* College/University */}
-              <div className="space-y-2">
-                <Label htmlFor="college" className="uppercase tracking-wider text-xs">
-                  College/University
-                </Label>
-                <Input
-                  id="college"
-                  type="text"
-                  required
-                  className="bg-input"
-                />
-              </div>
-
-              {/* Year of Graduation */}
-              <div className="space-y-2">
-                <Label htmlFor="graduation" className="uppercase tracking-wider text-xs">
-                  Year of Graduation
-                </Label>
-                <Input
-                  id="graduation"
-                  type="text"
-                  placeholder="e.g., 2025"
-                  required
-                  className="bg-input"
-                />
-              </div>
-
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="title" className="uppercase tracking-wider text-xs">
-                  Title
-                </Label>
-                <Input
-                  id="title"
-                  type="text"
-                  required
-                  className="bg-input"
-                />
-              </div>
-
-              {/* Abstract */}
-              <div className="space-y-2">
-                <Label htmlFor="abstract" className="uppercase tracking-wider text-xs">
-                  Abstract (Max 250 Words)
-                </Label>
-                <Textarea
-                  id="abstract"
-                  rows={6}
-                  required
-                  className="bg-input resize-none"
-                  maxLength={1500}
-                />
-              </div>
-
-              {/* Short Explanation */}
-              <div className="space-y-2">
-                <Label htmlFor="explanation" className="uppercase tracking-wider text-xs">
-                  Short Explanation
-                </Label>
-                <Input
-                  id="explanation"
-                  type="text"
-                  required
-                  className="bg-input"
-                />
-              </div>
-
-              {/* Upload PDF */}
-              <div className="space-y-2">
-                <Label htmlFor="pdf" className="uppercase tracking-wider text-xs">
-                  Upload PDF
-                </Label>
-                <div className="flex items-center gap-4">
-                  <label
-                    htmlFor="pdf"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 border border-border bg-input hover:bg-accent/10 transition-colors cursor-pointer"
-                  >
-                    <Upload className="h-4 w-4" />
-                    <span>Choose PDF File</span>
-                  </label>
-                  <input
-                    id="pdf"
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    className="hidden"
+            ) : (
+              <form id="submission-form" onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                  <div className="p-4 border border-red-200 bg-red-50 text-red-700 rounded">
+                    {error}
+                  </div>
+                )}
+                
+                {/* Your Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="uppercase tracking-wider text-xs">
+                    Your Name
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    type="text"
                     required
+                    className="bg-input"
+                    disabled={isSubmitting}
                   />
-                  {fileName && (
-                    <span className="text-sm text-muted-foreground truncate max-w-xs">
-                      {fileName}
-                    </span>
-                  )}
                 </div>
-              </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full mt-8"
-              >
-                Submit
-              </Button>
-            </form>
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="uppercase tracking-wider text-xs">
+                    Current Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="bg-input"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                {/* Title */}
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="uppercase tracking-wider text-xs">
+                    Article Title
+                  </Label>
+                  <Input
+                    id="title"
+                    name="title"
+                    type="text"
+                    required
+                    className="bg-input"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                {/* Abstract */}
+                <div className="space-y-2">
+                  <Label htmlFor="abstract" className="uppercase tracking-wider text-xs">
+                    Abstract (150-250 Words)
+                  </Label>
+                  <Textarea
+                    id="abstract"
+                    name="abstract"
+                    rows={6}
+                    required
+                    className="bg-input resize-none"
+                    maxLength={1500}
+                    disabled={isSubmitting}
+                    placeholder="Provide a concise summary of your legal research and findings..."
+                  />
+                </div>
+
+                {/* Upload PDF - Placeholder for now */}
+                <div className="space-y-2">
+                  <Label htmlFor="pdf" className="uppercase tracking-wider text-xs">
+                    Upload PDF (Coming Soon)
+                  </Label>
+                  <div className="p-4 border border-dashed border-muted-foreground/25 rounded text-center text-muted-foreground">
+                    <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">PDF upload will be available soon</p>
+                    <p className="text-xs">For now, your submission will be saved without the file</p>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full mt-8"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Article'}
+                </Button>
+              </form>
+            )}
           </Card>
         </div>
       </div>
