@@ -1,6 +1,8 @@
 import { Card } from "../components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Mail } from "lucide-react";
+import monicaHeadshot from "../assets/monica_headshot.png";
+import williamHeadshot from "../assets/william_headshot.jpeg";
 
 export function AboutUsPage() {
   const officers = [
@@ -12,7 +14,7 @@ export function AboutUsPage() {
       bio: "",
       email: "@ucla.edu",
       initials: "JR",
-      image: "", // Add image URL here
+      image: "", // No headshot available yet
     },
     {
       name: "Monica McCallin",
@@ -22,7 +24,7 @@ export function AboutUsPage() {
       bio: "",
       email: "@ucla.edu",
       initials: "MM",
-      image: "", // Add image URL here
+      image: monicaHeadshot,
     },
     {
       name: "William Huang",
@@ -32,7 +34,7 @@ export function AboutUsPage() {
       bio: "",
       email: "@ucla.edu",
       initials: "WH",
-      image: "", // Add image URL here
+      image: williamHeadshot,
     },
   ];
 

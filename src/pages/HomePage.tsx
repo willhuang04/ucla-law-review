@@ -85,57 +85,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
     }
   }
 
-    // Fallback featured article for when none is set in database
-  const fallbackFeaturedArticle = {
-    title: "The Digital Frontier: Examining Privacy Rights in the Age of Artificial Intelligence",
-    abstract: "This comprehensive analysis explores the intersection of constitutional privacy protections and emerging AI technologies. Through comparative analysis of recent case law and regulatory frameworks across jurisdictions, we propose a modernized approach to privacy rights that balances innovation with fundamental civil liberties.",
-    author_name: "Sarah Chen",
-    area: "Administrative" as const,
-    thumbnail_url: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGRvY3VtZW50c3xlbnwxfHx8fDE3NjE1MzQzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-  };
 
-  const recentArticles = [
-    {
-      title: "Climate Change Litigation and State Responsibility",
-      abstract: "An examination of emerging trends in climate litigation and the evolving doctrine of state responsibility under international law.",
-      author: "Marcus Johnson",
-      category: "Environmental Law",
-      readTime: "8 min read",
-      imageUrl: "https://images.unsplash.com/photo-1619806677949-cbae91e82cea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb3VydGhvdXNlfGVufDF8fHx8MTc2MTYwMDg2NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    },
-    {
-      title: "Corporate Governance in the Tech Industry: A Regulatory Analysis",
-      abstract: "Exploring the regulatory challenges and governance structures unique to technology companies in the modern economy.",
-      author: "Emily Rodriguez",
-      category: "Corporate Law",
-      readTime: "10 min read",
-      imageUrl: "https://images.unsplash.com/photo-1701790644702-292e25180524?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGJvb2tzJTIwbGlicmFyeXxlbnwxfHx8fDE3NjE1NTAxMTJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    },
-    {
-      title: "Criminal Justice Reform: Evidence-Based Policy Recommendations",
-      abstract: "A data-driven approach to criminal justice reform, analyzing successful interventions and policy implications.",
-      author: "James Thompson",
-      category: "Criminal Law",
-      readTime: "15 min read",
-      imageUrl: "https://images.unsplash.com/photo-1701790644702-292e25180524?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXclMjBib29rcyUyMGRlc2t8ZW58MXx8fHwxNzYxNjAwODY1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    },
-    {
-      title: "Intellectual Property in the Digital Age",
-      abstract: "Navigating the complexities of copyright, patent, and trademark law in an increasingly digital marketplace.",
-      author: "Priya Patel",
-      category: "IP Law",
-      readTime: "9 min read",
-      imageUrl: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGRvY3VtZW50c3xlbnwxfHx8fDE3NjE1MzQzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    },
-    {
-      title: "International Human Rights and Transnational Advocacy",
-      abstract: "Assessing the impact of transnational advocacy networks on human rights enforcement mechanisms.",
-      author: "Alexandra Kim",
-      category: "International Law",
-      readTime: "11 min read",
-      imageUrl: "https://images.unsplash.com/photo-1619806677949-cbae91e82cea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBjb3VydGhvdXNlfGVufDF8fHx8MTc2MTYwMDg2NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    },
-  ];
 
   return (
     <>
@@ -172,7 +122,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                         author={article.author_name}
                         category={article.area}
                         readTime="Featured Article"
-                        imageUrl={article.thumbnail_url || fallbackFeaturedArticle.thumbnail_url}
+                        imageUrl={article.thumbnail_url || ""}
                         submissionId={article.id}
                         slug={article.slug}
                         featured 
@@ -201,15 +151,10 @@ export function HomePage({ onNavigate }: HomePageProps) {
               )}
             </div>
           ) : (
-            <ArticleCard 
-              title={fallbackFeaturedArticle.title}
-              abstract={fallbackFeaturedArticle.abstract}
-              author={fallbackFeaturedArticle.author_name}
-              category={fallbackFeaturedArticle.area}
-              readTime="Featured Article"
-              imageUrl={fallbackFeaturedArticle.thumbnail_url}
-              featured 
-            />
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No featured articles available yet.</p>
+              <p className="text-sm text-muted-foreground mt-2">Check back soon for featured content!</p>
+            </div>
           )}
         </div>
       </section>
@@ -264,7 +209,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                           author={article.author_name}
                           category={article.area}
                           readTime="Article"
-                          imageUrl={article.thumbnail_url || fallbackFeaturedArticle.thumbnail_url}
+                          imageUrl={article.thumbnail_url || ""}
                           submissionId={article.id}
                           slug={article.slug}
                         />
