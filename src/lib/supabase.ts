@@ -21,6 +21,7 @@ export interface Submission {
   author_id?: string
   // Article information
   title: string
+  slug?: string
   area: 'Administrative' | 'Civil' | 'Criminal' | 'Environmental' | 'National Security'
   abstract: string
   // Files

@@ -13,6 +13,7 @@ interface ArticleCardProps {
   imageUrl: string;
   pdfUrl?: string;
   submissionId?: string;
+  slug?: string;
   featured?: boolean;
 }
 
@@ -24,6 +25,7 @@ export function ArticleCard({
   readTime,
   imageUrl,
   submissionId,
+  slug,
   featured = false,
 }: ArticleCardProps) {
   return (
@@ -52,7 +54,7 @@ export function ArticleCard({
           }`}>
             {submissionId ? (
               <Link 
-                to={`/article/${submissionId}`}
+                to={`/article/${slug || submissionId}`}
                 className="hover:underline cursor-pointer"
               >
                 {title}

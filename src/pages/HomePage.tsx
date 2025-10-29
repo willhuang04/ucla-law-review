@@ -139,7 +139,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
 
   return (
     <>
-      <Hero />
+            <Hero />
 
       {/* Featured Article */}
       <section className="py-16 border-b">
@@ -174,6 +174,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                         readTime="Featured Article"
                         imageUrl={article.thumbnail_url || fallbackFeaturedArticle.thumbnail_url}
                         submissionId={article.id}
+                        slug={article.slug}
                         featured 
                       />
                     </div>
@@ -265,6 +266,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                           readTime="Article"
                           imageUrl={article.thumbnail_url || fallbackFeaturedArticle.thumbnail_url}
                           submissionId={article.id}
+                          slug={article.slug}
                         />
                       ))}
                     </div>

@@ -22,34 +22,40 @@ export function ArticlePage() {
     }
   }, [id]);
 
-  async function fetchArticle(articleId: string) {
+  async function fetchArticle(articleIdOrSlug: string) {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // First try to fetch by slug
+      let { data, error } = await supabase
         .from('submissions')
         .select('*')
-        .eq('id', articleId)
+        .eq('slug', articleIdOrSlug)
         .eq('status', 'approved')
         .single();
 
+      // If not found by slug, try by ID (for backward compatibility)
+      if (error && error.code === 'PGRST116') {
+        ({ data, error } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('id', articleIdOrSlug)
+          .eq('status', 'approved')
+          .single());
+      }
+
       if (error) {
-        throw error;
+        console.error('Error fetching article:', error);
+        setError(error.message || 'Article not found');
+      } else if (data) {
+        setArticle(data);
+        if (data.docx_url) {
+          extractDocxText(data.docx_url);
+        }
       }
-
-      if (!data) {
-        throw new Error('Article not found');
-      }
-
-      setArticle(data);
-      
-      // Extract text from DOCX
-      if (data.pdf_url) {
-        await extractDocxText(data.pdf_url);
-      }
-      
     } catch (err: any) {
-      setError(err.message || 'Failed to load article');
       console.error('Failed to fetch article:', err);
+      setError(err.message || 'Failed to load article');
     } finally {
       setLoading(false);
     }

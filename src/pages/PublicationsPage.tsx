@@ -51,7 +51,8 @@ export function PublicationsPage() {
     readTime: "8 min read", // We'll calculate this later or make it dynamic
     imageUrl: submission.thumbnail_url || "",
     pdfUrl: submission.pdf_url || "",
-    submissionId: submission.id
+    submissionId: submission.id,
+    slug: submission.slug
   }));
 
   
