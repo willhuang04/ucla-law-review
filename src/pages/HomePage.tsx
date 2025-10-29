@@ -13,10 +13,13 @@ interface HomePageProps {
 export function HomePage({ onNavigate }: HomePageProps) {
   const [featuredArticles, setFeaturedArticles] = useState<Submission[]>([]);
   const [currentFeaturedIndex, setCurrentFeaturedIndex] = useState(0);
+  const [recentArticlesByCategory, setRecentArticlesByCategory] = useState<Record<string, Submission[]>>({});
   const [loading, setLoading] = useState(true);
+  const [recentLoading, setRecentLoading] = useState(true);
 
   useEffect(() => {
     fetchFeaturedArticles();
+    fetchRecentArticlesByCategory();
   }, []);
 
   useEffect(() => {
@@ -51,12 +54,43 @@ export function HomePage({ onNavigate }: HomePageProps) {
     }
   }
 
-  // Fallback featured article for when none is set in database
+  async function fetchRecentArticlesByCategory() {
+    try {
+      setRecentLoading(true);
+      const categories = ['Administrative', 'Civil', 'Criminal', 'Environmental', 'National Security'];
+      const articlesByCategory: Record<string, Submission[]> = {};
+
+      // Fetch the 6 most recent articles for each category
+      for (const category of categories) {
+        const { data, error } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('status', 'approved')
+          .eq('area', category)
+          .order('created_at', { ascending: false })
+          .limit(6);
+
+        if (error) {
+          console.error(`Error fetching ${category} articles:`, error);
+        } else if (data) {
+          articlesByCategory[category] = data;
+        }
+      }
+
+      setRecentArticlesByCategory(articlesByCategory);
+    } catch (err) {
+      console.error('Error fetching recent articles:', err);
+    } finally {
+      setRecentLoading(false);
+    }
+  }
+
+    // Fallback featured article for when none is set in database
   const fallbackFeaturedArticle = {
     title: "The Digital Frontier: Examining Privacy Rights in the Age of Artificial Intelligence",
     abstract: "This comprehensive analysis explores the intersection of constitutional privacy protections and emerging AI technologies. Through comparative analysis of recent case law and regulatory frameworks across jurisdictions, we propose a modernized approach to privacy rights that balances innovation with fundamental civil liberties.",
     author_name: "Sarah Chen",
-    area: "Constitutional Law" as const,
+    area: "Administrative" as const,
     thumbnail_url: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWdhbCUyMGRvY3VtZW50c3xlbnwxfHx8fDE3NjE1MzQzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
   };
 
@@ -199,42 +233,51 @@ export function HomePage({ onNavigate }: HomePageProps) {
             </Button>
           </div>
 
-          <Tabs defaultValue="all" className="mb-6">
-            <TabsList className="flex items-center gap-8">
-              <TabsTrigger value="all" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">All</TabsTrigger>
-              <TabsTrigger value="constitutional" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Constitutional</TabsTrigger>
-              <TabsTrigger value="corporate" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Corporate</TabsTrigger>
-              <TabsTrigger value="criminal" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Criminal</TabsTrigger>
-              <TabsTrigger value="international" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">International</TabsTrigger>
-            </TabsList>
-            <TabsContent value="all" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentArticles.map((article, index) => (
-                  <ArticleCard key={index} {...article} />
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="constitutional" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <ArticleCard {...recentArticles[0]} />
-              </div>
-            </TabsContent>
-            <TabsContent value="corporate" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <ArticleCard {...recentArticles[1]} />
-              </div>
-            </TabsContent>
-            <TabsContent value="criminal" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <ArticleCard {...recentArticles[2]} />
-              </div>
-            </TabsContent>
-            <TabsContent value="international" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <ArticleCard {...recentArticles[4]} />
-              </div>
-            </TabsContent>
-          </Tabs>
+          {recentLoading ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading recent publications...</p>
+            </div>
+          ) : (
+            <Tabs defaultValue="Administrative" className="mb-6">
+              <TabsList className="flex items-center gap-4">
+                <TabsTrigger value="Administrative" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Administrative</TabsTrigger>
+                <TabsTrigger value="Civil" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Civil</TabsTrigger>
+                <TabsTrigger value="Criminal" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Criminal</TabsTrigger>
+                <TabsTrigger value="Environmental" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Environmental</TabsTrigger>
+                <TabsTrigger value="National Security" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">National Security</TabsTrigger>
+              </TabsList>
+              
+              {Object.entries(recentArticlesByCategory).map(([category, articles]) => (
+                <TabsContent key={category} value={category} className="mt-6">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold mb-2">{category} Law</h3>
+                    <p className="text-sm text-muted-foreground">Latest {articles.length} articles in {category} Law</p>
+                  </div>
+                  {articles.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {articles.map((article) => (
+                        <ArticleCard 
+                          key={article.id}
+                          title={article.title}
+                          abstract={article.abstract}
+                          author={article.author_name}
+                          category={article.area}
+                          readTime="Article"
+                          imageUrl={article.thumbnail_url || fallbackFeaturedArticle.thumbnail_url}
+                          submissionId={article.id}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>No articles available in {category} Law yet.</p>
+                      <p className="text-sm mt-2">Check back soon for new publications!</p>
+                    </div>
+                  )}
+                </TabsContent>
+              ))}
+            </Tabs>
+          )}
 
           <Button 
             variant="ghost" 
