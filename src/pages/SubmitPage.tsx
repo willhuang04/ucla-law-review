@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Upload, CheckCircle } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useUser } from "@clerk/clerk-react";
@@ -13,11 +14,19 @@ export function SubmitPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedArea, setSelectedArea] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+
+    // Validate area selection
+    if (!selectedArea) {
+      setError('Please select a legal area for your article.');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const formData = new FormData(e.target as HTMLFormElement);
@@ -29,9 +38,9 @@ export function SubmitPage() {
         author_name: formData.get('name') as string,
         author_email: formData.get('email') as string,
         author_id: user?.id || null,
-        category: 'General', // Default category for now
-        keywords: [], // Empty for now
-        // Note: PDF upload will be added later
+        area: selectedArea,
+        status: 'pending' as const,
+        // Note: thumbnail_url and pdf_url will be added when file upload is implemented
       };
 
       // Insert into Supabase
@@ -74,6 +83,7 @@ export function SubmitPage() {
                 <li>Article must be 5,000-10,000 words (excluding footnotes)</li>
                 <li>Proper legal citation format (Bluebook 21st edition)</li>
                 <li>Abstract of 150-250 words required</li>
+                <li>Must select primary legal area (Administrative, Civil, Criminal, Environmental, or National Security)</li>
                 <li>Author must be currently enrolled as an undergraduate student</li>
                 <li>Submit as a PDF document</li>
               </ul>
@@ -97,6 +107,7 @@ export function SubmitPage() {
                 <Button onClick={() => {
                   setSubmitted(false);
                   setError(null);
+                  setSelectedArea("");
                   (document.getElementById('submission-form') as HTMLFormElement)?.reset();
                 }}>
                   Submit Another Article
@@ -153,6 +164,25 @@ export function SubmitPage() {
                     className="bg-input"
                     disabled={isSubmitting}
                   />
+                </div>
+
+                {/* Area */}
+                <div className="space-y-2">
+                  <Label htmlFor="area" className="uppercase tracking-wider text-xs">
+                    Legal Area
+                  </Label>
+                  <Select value={selectedArea} onValueChange={setSelectedArea} required disabled={isSubmitting}>
+                    <SelectTrigger className="bg-input">
+                      <SelectValue placeholder="Select the primary legal area of your article" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Administrative">Administrative Law</SelectItem>
+                      <SelectItem value="Civil">Civil Law</SelectItem>
+                      <SelectItem value="Criminal">Criminal Law</SelectItem>
+                      <SelectItem value="Environmental">Environmental Law</SelectItem>
+                      <SelectItem value="National Security">National Security Law</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Abstract */}
