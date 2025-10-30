@@ -44,6 +44,14 @@ export function SubmitPage() {
   const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+  // Allow only UCLA institutional emails
+  const isAllowedInstitutionEmail = (email: string) => {
+    const match = email.toLowerCase().trim().match(/^[^@]+@([^@]+)$/);
+    if (!match) return false;
+    const domain = match[1];
+    return domain === 'ucla.edu' || domain === 'g.ucla.edu';
+  };
+
   // Show loading state while checking authentication
   if (!isLoaded) {
     return (
@@ -194,6 +202,13 @@ export function SubmitPage() {
         area: selectedArea,
         status: 'pending' as const,
       };
+
+      // Enforce UCLA email domain restriction
+      if (!isAllowedInstitutionEmail(submission.author_email)) {
+        setError('Please use your UCLA email address (…@ucla.edu or …@g.ucla.edu).');
+        setIsSubmitting(false);
+        return;
+      }
 
   devLog('Attempting to insert submission:', submission);
 
@@ -392,6 +407,8 @@ export function SubmitPage() {
                     id="email"
                     name="email"
                     type="email"
+                    pattern="^[^@]+@(ucla\.edu|g\.ucla\.edu)$"
+                    title="Use your UCLA email (…@ucla.edu or …@g.ucla.edu)"
                     required
                     className="bg-input"
                     disabled={isSubmitting}
