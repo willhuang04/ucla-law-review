@@ -345,7 +345,6 @@ export function SubmitPage() {
             <div className="space-y-4 text-sm text-muted-foreground">
               <p>
                 Thank you for your interest in submitting to the UCLA Undergraduate Law Journal. 
-                We accept original, unpublished legal scholarship from undergraduate students across all institutions.
               </p>
               <p>
                 <strong className="text-foreground">Submission Requirements:</strong>
