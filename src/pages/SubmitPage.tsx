@@ -10,11 +10,28 @@ import { supabase } from "../lib/supabase";
 import { createClient } from '@supabase/supabase-js';
 import { useUser, SignInButton } from "@clerk/clerk-react";
 
-// Create a service role client for file uploads (bypasses RLS)
-const supabaseService = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_SERVICE_KEY
-);
+// Safe storage client: use Service Key only if present (local dev/admin),
+// otherwise fall back to anon key so production doesn't crash.
+// Never require the service key on the client.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = import.meta.env.VITE_SUPABASE_SERVICE_KEY;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Lazily create a storage-capable client only when needed.
+function getSupabaseService() {
+  const url = SUPABASE_URL;
+  const key = SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    // eslint-disable-next-line no-console
+    console.error('Supabase storage client not configured', {
+      hasUrl: !!url,
+      hasServiceKey: !!SUPABASE_SERVICE_KEY,
+      hasAnonKey: !!SUPABASE_ANON_KEY,
+    });
+    return null;
+  }
+  return createClient(url, key);
+}
 
 export function SubmitPage() {
   const { user, isLoaded } = useUser();
@@ -202,11 +219,18 @@ export function SubmitPage() {
       console.log('Starting file uploads...');
       setUploadProgress(10);
       
+      // Create storage client lazily (prevents crashes if env is missing at import time)
+      const supabaseService = getSupabaseService();
+      if (!supabaseService) {
+        throw new Error('Storage is not configured. Please try again later.');
+      }
+
       // Upload DOCX
       const docxExt = selectedFile.name.split('.').pop();
       const docxFileName = `${submissionId}.${docxExt}`;
 
-      console.log('Uploading DOCX:', docxFileName);      const { data: docxUploadData, error: docxUploadError } = await supabaseService.storage
+      console.log('Uploading DOCX:', docxFileName);
+      const { data: docxUploadData, error: docxUploadError } = await supabaseService.storage
         .from('submissions')
         .upload(docxFileName, selectedFile, {
           cacheControl: '3600',
