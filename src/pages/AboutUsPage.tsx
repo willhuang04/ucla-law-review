@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Mail } from "lucide-react";
 import monicaHeadshot from "../assets/monica_headshot.png";
 import williamHeadshot from "../assets/william_headshot.jpeg";
+import jacobHeadshot from "../assets/jacob.png";
 
 export function AboutUsPage() {
   const officers = [
@@ -12,9 +13,9 @@ export function AboutUsPage() {
       major: "Political Science and History",
       year: "Class of 2027",
       bio: "",
-      email: "@ucla.edu",
+      email: "Jrusting@ucla.edu",
       initials: "JR",
-      image: "", // No headshot available yet
+      image: jacobHeadshot, // No headshot available yet
     },
     {
       name: "Monica McCallin",
@@ -22,7 +23,7 @@ export function AboutUsPage() {
       major: "Political Science and Environmental Systems & Society Minor",
       year: "Class of 2026",
       bio: "",
-      email: "@ucla.edu",
+      email: "monicamccallin@ucla.edu",
       initials: "MM",
       image: monicaHeadshot,
     },
@@ -32,7 +33,7 @@ export function AboutUsPage() {
       major: "Political Science and Computer Science",
       year: "Class of 2026",
       bio: "",
-      email: "@ucla.edu",
+      email: "willhuang04@ucla.edu",
       initials: "WH",
       image: williamHeadshot,
     },
