@@ -43,6 +43,11 @@ export function SubmitPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [abstractText, setAbstractText] = useState<string>("");
+  const abstractWordCount = abstractText.trim()
+    ? abstractText.trim().split(/\s+/).filter(Boolean).length
+    : 0;
+  const abstractTooLong = abstractWordCount > 250;
 
   // Allow only UCLA institutional emails
   const isAllowedInstitutionEmail = (email: string) => {
@@ -195,13 +200,20 @@ export function SubmitPage() {
       // Extract form data
       const submission = {
         title: formData.get('title') as string,
-        abstract: formData.get('abstract') as string,
+        abstract: abstractText.trim(),
         author_name: formData.get('name') as string,
         author_email: formData.get('email') as string,
         author_id: user?.id || null,
         area: selectedArea,
         status: 'pending' as const,
       };
+
+      // Enforce abstract <= 250 words
+      if (abstractTooLong) {
+        setError('Abstract must be 250 words or fewer.');
+        setIsSubmitting(false);
+        return;
+      }
 
       // Enforce UCLA email domain restriction
       if (!isAllowedInstitutionEmail(submission.author_email)) {
@@ -452,18 +464,27 @@ export function SubmitPage() {
                 {/* Abstract */}
                 <div className="space-y-2">
                   <Label htmlFor="abstract" className="uppercase tracking-wider text-xs">
-                    Abstract (150-250 Words)
+                    Abstract (up to 250 words)
                   </Label>
                   <Textarea
                     id="abstract"
                     name="abstract"
                     rows={6}
                     required
-                    className="bg-input resize-none"
-                    maxLength={1500}
+                    className={`bg-input resize-none ${abstractTooLong ? 'border-red-300 focus-visible:ring-red-400' : ''}`}
+                    value={abstractText}
+                    onChange={(e) => setAbstractText(e.target.value)}
                     disabled={isSubmitting}
                     placeholder="Provide a concise summary of your legal research and findings..."
                   />
+                  <div className="flex justify-between text-xs mt-1">
+                    <span className={`text-muted-foreground ${abstractTooLong ? 'text-red-600' : ''}`}>
+                      Word count: {abstractWordCount} / 250
+                    </span>
+                    {abstractTooLong && (
+                      <span className="text-red-600">Reduce by {abstractWordCount - 250} words</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Upload DOCX */}
@@ -591,7 +612,7 @@ export function SubmitPage() {
                   type="submit"
                   size="lg"
                   className="w-full mt-8"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || abstractTooLong}
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Article'}
                 </Button>
