@@ -57,7 +57,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
   async function fetchRecentArticlesByCategory() {
     try {
       setRecentLoading(true);
-      const categories = ['Administrative', 'Civil', 'Criminal', 'Environmental', 'National Security'];
+  const categories = ['Administrative', 'Civil', 'Criminal', 'Environmental', 'National Security', 'NBA'];
       const articlesByCategory: Record<string, Submission[]> = {};
 
       // Fetch the 6 most recent articles for each category
@@ -191,6 +191,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                 <TabsTrigger value="Criminal" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Criminal</TabsTrigger>
                 <TabsTrigger value="Environmental" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">Environmental</TabsTrigger>
                 <TabsTrigger value="National Security" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">National Security</TabsTrigger>
+                <TabsTrigger value="NBA" className="p-0 font-medium text-muted-foreground hover:text-foreground data-[state=active]:text-foreground bg-transparent hover:bg-transparent">NBA</TabsTrigger>
               </TabsList>
               
               {Object.entries(recentArticlesByCategory).map(([category, articles]) => (

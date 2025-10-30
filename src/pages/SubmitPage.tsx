@@ -353,7 +353,7 @@ export function SubmitPage() {
                 <li>Article must be 5,000-10,000 words (excluding footnotes)</li>
                 <li>Proper legal citation format (Bluebook 21st edition)</li>
                 <li>Abstract of 150-250 words required</li>
-                <li>Must select primary legal area (Administrative, Civil, Criminal, Environmental, or National Security)</li>
+                <li>Must select primary legal area (Administrative, Civil, Criminal, Environmental, National Security, or NBA)</li>
                 <li>Author must be currently enrolled as an undergraduate student</li>
                 <li>Submit as a DOCX document</li>
               </ul>
@@ -456,6 +456,7 @@ export function SubmitPage() {
                       <SelectItem value="Criminal">Criminal Law</SelectItem>
                       <SelectItem value="Environmental">Environmental Law</SelectItem>
                       <SelectItem value="National Security">National Security Law</SelectItem>
+                      <SelectItem value="NBA">NBA</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

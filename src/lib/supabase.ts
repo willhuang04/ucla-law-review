@@ -19,7 +19,7 @@ export interface Submission {
   // Article information
   title: string
   slug?: string
-  area: 'Administrative' | 'Civil' | 'Criminal' | 'Environmental' | 'National Security'
+  area: 'Administrative' | 'Civil' | 'Criminal' | 'Environmental' | 'National Security' | 'NBA'
   abstract: string
   // Files
   thumbnail_url?: string

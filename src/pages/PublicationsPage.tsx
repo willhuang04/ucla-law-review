@@ -112,6 +112,7 @@ export function PublicationsPage() {
               <SelectItem value="Criminal">Criminal</SelectItem>
               <SelectItem value="Environmental">Environmental</SelectItem>
               <SelectItem value="National Security">National Security</SelectItem>
+              <SelectItem value="NBA">NBA</SelectItem>
             </SelectContent>
           </Select>
         </div>
