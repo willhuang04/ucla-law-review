@@ -219,6 +219,16 @@ export function Footer({ onNavigate }: FooterProps) {
             <a href="#" className="hover:text-foreground transition-colors">
               Terms of Use
             </a>
+            <span className="hidden sm:inline text-muted-foreground">•</span>
+            <a
+              href="https://github.com/willhuang04"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="hover:text-foreground transition-colors"
+              aria-label="Built by William Huang"
+            >
+              Built by <span className="underline-offset-2 hover:underline">William Huang</span>
+            </a>
           </div>
         </div>
       </div>

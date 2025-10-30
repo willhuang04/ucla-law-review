@@ -1,6 +1,10 @@
-# React + TypeScript + Vite
+# UCLA Undergraduate Law Journal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Built with React, TypeScript, Vite, Tailwind, shadcn/ui, Clerk, and Supabase.
+
+— Built by [William Huang](https://github.com/willhuang04)
+
+This project started from the Vite React + TypeScript template with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
 
