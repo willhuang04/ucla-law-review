@@ -34,6 +34,7 @@ function getSupabaseService() {
 }
 
 export function SubmitPage() {
+  const devLog = (...args: any[]) => { if (import.meta.env.DEV) console.log(...args); };
   const { user, isLoaded } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -194,7 +195,7 @@ export function SubmitPage() {
         status: 'pending' as const,
       };
 
-      console.log('Attempting to insert submission:', submission);
+  devLog('Attempting to insert submission:', submission);
 
       // Insert into Supabase first to get the submission ID
       const submissionWithUser = {
@@ -212,11 +213,11 @@ export function SubmitPage() {
         throw new Error(`Database error: ${insertError.message}`);
       }
 
-      console.log('Submission inserted successfully:', data);
+  devLog('Submission inserted successfully:', data);
       const submissionId = data[0].id;
 
       // Upload both DOCX and thumbnail
-      console.log('Starting file uploads...');
+  devLog('Starting file uploads...');
       setUploadProgress(10);
       
       // Create storage client lazily (prevents crashes if env is missing at import time)
@@ -229,7 +230,7 @@ export function SubmitPage() {
       const docxExt = selectedFile.name.split('.').pop();
       const docxFileName = `${submissionId}.${docxExt}`;
 
-      console.log('Uploading DOCX:', docxFileName);
+  devLog('Uploading DOCX:', docxFileName);
       const { data: docxUploadData, error: docxUploadError } = await supabaseService.storage
         .from('submissions')
         .upload(docxFileName, selectedFile, {
@@ -243,14 +244,14 @@ export function SubmitPage() {
         throw new Error(`DOCX upload failed: ${docxUploadError.message}`);
       }
 
-      console.log('DOCX upload successful:', docxUploadData);
+  devLog('DOCX upload successful:', docxUploadData);
       setUploadProgress(40);
 
       // Upload thumbnail
       const thumbnailExt = selectedThumbnail.name.split('.').pop();
       const thumbnailFileName = `${submissionId}_thumb.${thumbnailExt}`;
       
-      console.log('Uploading thumbnail:', thumbnailFileName);
+  devLog('Uploading thumbnail:', thumbnailFileName);
       
       const { data: thumbnailUploadData, error: thumbnailUploadError } = await supabaseService.storage
         .from('submissions')
@@ -265,7 +266,7 @@ export function SubmitPage() {
         throw new Error(`Thumbnail upload failed: ${thumbnailUploadError.message}`);
       }
 
-      console.log('Thumbnail upload successful:', thumbnailUploadData);
+  devLog('Thumbnail upload successful:', thumbnailUploadData);
       setUploadProgress(70);
 
       // Get public URLs
@@ -277,8 +278,8 @@ export function SubmitPage() {
         .from('submissions')
         .getPublicUrl(thumbnailFileName);
 
-      console.log('Generated DOCX URL:', docxPublicUrl);
-      console.log('Generated thumbnail URL:', thumbnailPublicUrl);
+  devLog('Generated DOCX URL:', docxPublicUrl);
+  devLog('Generated thumbnail URL:', thumbnailPublicUrl);
       setUploadProgress(90);
 
       // Update submission with both URLs
@@ -296,7 +297,7 @@ export function SubmitPage() {
       }
 
       setUploadProgress(100);
-      console.log('Submission created with DOCX:', data);
+  devLog('Submission created with DOCX:', data);
       setSubmitted(true);
       
     } catch (err: any) {
