@@ -122,10 +122,10 @@ export function Hero() {
 
           {/* Main heading */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl mb-6 tracking-tight">
-            UCLA Undergraduate
+            Undergraduate Student Law Review
             <br />
             <span className="text-muted-foreground">
-              Law Journal
+              @ UCLA
             </span>
           </h1>
 
