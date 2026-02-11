@@ -130,7 +130,7 @@ export function Hero() {
           </h1>
 
           <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-            UCLA's premier undergraduate law journal.
+            Now accepting applications!
           </p>
 
           {/* Search bar with dropdown */}

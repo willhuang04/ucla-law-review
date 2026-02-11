@@ -4,6 +4,7 @@ import { AuthCheck } from "./auth/AuthCheck";
 import { useUser, useOrganization } from "@clerk/clerk-react";
 import { isAdmin } from "./auth/AdminRoute";
 import { useState, useEffect } from "react";
+import clubLogo from "../assets/clublogo.png";
 
 interface HeaderProps {
   darkMode: boolean;
@@ -48,16 +49,16 @@ export function Header({ darkMode, setDarkMode, currentPage, onNavigate }: Heade
           {/* Logo */}
           <button 
             onClick={() => onNavigate('/')}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <img 
-              src="https://logos-world.net/wp-content/uploads/2021/11/University-of-California-Los-Angeles-UCLA-Emblem.png" 
+              src={clubLogo} 
               alt="UCLA Law Journal" 
-              className="h-8 w-8 rounded object-contain"
+              className="h-10 w-auto rounded object-contain flex-shrink-0"
             />
             <div className="flex flex-col text-left">
-              <span className="tracking-tight">UCLA</span>
-              <span className="text-xs text-muted-foreground tracking-tight">Undergraduate Law Review</span>
+              <span className="tracking-tight">Undergraduate Student Law Review</span>
+              <span className="text-xs text-muted-foreground tracking-tight">@ UCLA</span>
             </div>
           </button>
 
@@ -98,23 +99,22 @@ export function Header({ darkMode, setDarkMode, currentPage, onNavigate }: Heade
           </nav>
 
           {/* Search, Auth & Theme */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-shrink-0">
             <AuthCheck />
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={() => setDarkMode(!darkMode)}
               aria-label="Toggle theme"
+              className="p-2 hover:opacity-70 transition-opacity"
             >
               {darkMode ? (
                 <Sun className="h-5 w-5" />
               ) : (
                 <Moon className="h-5 w-5" />
               )}
-            </Button>
-            <Button variant="ghost" size="icon" className="md:hidden">
+            </button>
+            <button className="md:hidden p-2 hover:opacity-70 transition-opacity">
               <Menu className="h-5 w-5" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>
