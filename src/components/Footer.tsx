@@ -1,5 +1,6 @@
 import { Mail, Twitter, Linkedin, Github } from "lucide-react";
 import { Separator } from "./ui/separator";
+import clubLogo from "../assets/clublogo.png";
 
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -14,13 +15,13 @@ export function Footer({ onNavigate }: FooterProps) {
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <img 
-                src="https://logos-world.net/wp-content/uploads/2021/11/University-of-California-Los-Angeles-UCLA-Emblem.png" 
+                src={clubLogo} 
                 alt="UCLA Law Journal" 
                 className="h-8 w-8 rounded object-contain"
               />
               <div className="flex flex-col">
-                <span className="tracking-tight">UCLA</span>
-                <span className="text-xs text-muted-foreground tracking-tight">Undergraduate Law Review</span>
+                <span className="tracking-tight">Undergraduate Student Law Review</span>
+                <span className="text-xs text-muted-foreground tracking-tight">@ UCLA</span>
               </div>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
