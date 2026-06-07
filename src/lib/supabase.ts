@@ -27,6 +27,7 @@ export interface Submission {
   // Status and review
   status: 'pending' | 'approved' | 'rejected'
   featured?: boolean
+  hidden?: boolean
   submitted_at: string
   reviewed_at?: string
   reviewed_by?: string

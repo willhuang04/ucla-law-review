@@ -6,8 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Search } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Submission } from "../lib/supabase";
+import { useSecret } from "../lib/secretMode";
 
 export function PublicationsPage() {
+  const { unlocked } = useSecret();
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || "");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -18,7 +20,7 @@ export function PublicationsPage() {
   // Fetch approved submissions from database
   useEffect(() => {
     fetchApprovedSubmissions();
-  }, []);
+  }, [unlocked]);
 
   // Update search query when URL params change
   useEffect(() => {
@@ -31,13 +33,19 @@ export function PublicationsPage() {
   async function fetchApprovedSubmissions() {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('submissions')
         .select('*')
         .eq('status', 'approved')
         .not('thumbnail_url', 'is', null)
-  .not('docx_url', 'is', null)
-        .order('created_at', { ascending: false });
+        .not('docx_url', 'is', null);
+
+      // Hidden articles are only included once secret mode is unlocked.
+      if (!unlocked) {
+        query = query.or('hidden.is.null,hidden.eq.false');
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
         throw error;

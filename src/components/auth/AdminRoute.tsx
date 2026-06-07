@@ -7,9 +7,20 @@ export const ADMIN_IDS: string[] = [
   'user_34hdyqWmC8PkJs1U4j3tatbqQFT',
 ];
 
+// Owner-only accounts. These users get extra privileges that regular admins
+// do not have, such as marking articles as "hidden" (secret/easter-egg).
+export const OWNER_IDS: string[] = [
+  'user_34hdyqWmC8PkJs1U4j3tatbqQFT',
+];
+
 // Helper function to check if a user is an admin
 export function isAdmin(userId: string | null): boolean {
   return userId ? ADMIN_IDS.includes(userId) : false;
+}
+
+// Helper function to check if a user is an owner (super-admin)
+export function isOwner(userId: string | null): boolean {
+  return userId ? OWNER_IDS.includes(userId) : false;
 }
 
 interface AdminRouteProps {

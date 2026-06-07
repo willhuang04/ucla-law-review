@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useUser } from "@clerk/clerk-react";
 import {
   Table,
   TableBody,
@@ -11,9 +12,12 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { supabase, type Submission } from "../../lib/supabase";
 import { Skeleton } from "../ui/skeleton";
-import { CheckCircle, XCircle, Clock, Eye, FileText, Star } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Eye, EyeOff, FileText, Star } from "lucide-react";
+import { isOwner } from "../auth/AdminRoute";
 
 export function SubmissionsPage() {
+  const { user } = useUser();
+  const canManageHidden = isOwner(user?.id ?? null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +124,33 @@ export function SubmissionsPage() {
       
     } catch (err: any) {
       setError('Failed to update featured status: ' + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleToggleHidden(submissionId: string, currentHidden: boolean) {
+    // Guard: only the owner account may change the hidden flag.
+    if (!canManageHidden) {
+      setError('You do not have permission to manage hidden articles.');
+      return;
+    }
+    setActionLoading(submissionId);
+    try {
+      const { error: updateError } = await supabase
+        .from('submissions')
+        .update({ hidden: !currentHidden })
+        .eq('id', submissionId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      // Refresh submissions
+      await fetchSubmissions();
+
+    } catch (err: any) {
+      setError('Failed to update hidden status: ' + err.message);
     } finally {
       setActionLoading(null);
     }
@@ -293,6 +324,25 @@ export function SubmissionsPage() {
                           <Star className={`h-3 w-3 ${submission.featured ? 'fill-current' : ''}`} />
                         )}
                         {submission.featured ? 'Featured' : 'Feature'}
+                      </Button>
+                    )}
+                    {submission.status === 'approved' && canManageHidden && (
+                      <Button
+                        size="sm"
+                        variant={submission.hidden ? "default" : "outline"}
+                        onClick={() => handleToggleHidden(submission.id, submission.hidden || false)}
+                        disabled={!!actionLoading}
+                        className={submission.hidden ? "bg-purple-600 hover:bg-purple-700 text-white" : "text-purple-600 border-purple-200 hover:bg-purple-50"}
+                        title={submission.hidden ? 'This article is hidden from the public site' : 'Hide this article from the public site'}
+                      >
+                        {actionLoading === submission.id ? (
+                          <Clock className="h-3 w-3 animate-spin" />
+                        ) : submission.hidden ? (
+                          <EyeOff className="h-3 w-3" />
+                        ) : (
+                          <Eye className="h-3 w-3" />
+                        )}
+                        {submission.hidden ? 'Hidden' : 'Hide'}
                       </Button>
                     )}
                     {submission.status !== 'pending' && submission.status !== 'approved' && (

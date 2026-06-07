@@ -9,9 +9,11 @@ import { ArticlePage } from "./pages/ArticlePage";
 import { SubmitPage } from "./pages/SubmitPage";
 import { AboutUsPage } from "./pages/AboutUsPage";
 import { AdminPage } from "./pages/AdminPage";
+import { UnlockPage } from "./pages/UnlockPage";
 import { AdminRoute } from "./components/auth/AdminRoute";
 
 import { AuthProvider } from './lib/auth';
+import { SecretProvider } from './lib/secretMode';
 
 function AppContent() {
   const [darkMode, setDarkMode] = useState(true);
@@ -46,6 +48,7 @@ function AppContent() {
           <Route path="/article/:id" element={<ArticlePage />} />
           <Route path="/submit" element={<SubmitPage />} />
           <Route path="/about-us" element={<AboutUsPage />} />
+          <Route path="/unlock" element={<UnlockPage />} />
           <Route path="/admin/*" element={<AdminRoute><AdminPage /></AdminRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -58,9 +61,11 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <SecretProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </SecretProvider>
     </AuthProvider>
   );
 }
