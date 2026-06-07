@@ -28,9 +28,9 @@ export function UnlockPage() {
     <div className="flex min-h-[60vh] items-center justify-center py-16">
       <div className="w-full max-w-sm px-4">
         <div className="rounded-lg border bg-card p-8 shadow-sm">
-          <h1 className="mb-2 text-center">Restricted Access</h1>
+          <h1 className="mb-2 text-center">Who is the best NBA player to ever live?</h1>
           <p className="mb-6 text-center text-sm text-muted-foreground">
-            Enter the passphrase to continue.
+            Enter the answer to continue.
           </p>
 
           {unlocked ? (
