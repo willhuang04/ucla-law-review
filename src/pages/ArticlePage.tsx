@@ -6,10 +6,12 @@ import { ArrowLeft, ExternalLink, User } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { extractTextFromDOCX } from "../lib/docxUtils";
 import type { Submission } from "../lib/supabase";
+import { useSecret } from "../lib/secretMode";
 
 export function ArticlePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { unlocked } = useSecret();
   const [article, setArticle] = useState<Submission | null>(null);
   const [docxText, setDocxText] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,7 @@ export function ArticlePage() {
     if (id) {
       fetchArticle(id);
     }
-  }, [id]);
+  }, [id, unlocked]);
 
   async function fetchArticle(articleIdOrSlug: string) {
     try {
@@ -48,9 +50,16 @@ export function ArticlePage() {
         console.error('Error fetching article:', error);
         setError(error.message || 'Article not found');
       } else if (data) {
-        setArticle(data);
-        if (data.docx_url) {
-          extractDocxText(data.docx_url);
+        // Hidden articles can only be viewed in secret mode. To everyone else
+        // (including search engine crawlers) they appear not to exist.
+        if (data.hidden && !unlocked) {
+          setError('Article not found');
+          setArticle(null);
+        } else {
+          setArticle(data);
+          if (data.docx_url) {
+            extractDocxText(data.docx_url);
+          }
         }
       }
     } catch (err: any) {
