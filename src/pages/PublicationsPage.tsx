@@ -91,10 +91,21 @@ export function PublicationsPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="mb-4">All Publications</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Browse our complete archive of peer-reviewed legal scholarship from undergraduate researchers.
-          </p>
+          {unlocked ? (
+            <>
+              <h1 className="mb-4">Welcome to ShiqiLeaks™</h1>
+              <p className="text-lg text-muted-foreground max-w-2xl">
+                If you made it here, your GPA is definitely below 0.4.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="mb-4">All Publications</h1>
+              <p className="text-lg text-muted-foreground max-w-2xl">
+                Browse our complete archive of peer-reviewed legal scholarship from undergraduate researchers.
+              </p>
+            </>
+          )}
         </div>
 
         {/* Filters */}
